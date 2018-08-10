@@ -146,7 +146,7 @@ export class QcoutPage {
     this.navCtrl.push('UseraccountPage');
   }
   getDataDMSearch() {
-    this.api.get("tablenav", { params: { limit: 10000, table: "CSB_LIVE$Delivery Management Header",  sort: "[Expected Receipt Date]" + " ASC " } })
+    this.api.get("tablenav", { params: { limit: 10000, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
     .subscribe(val => {
       let data = val['data'];
       for (let i = 0; i < data.length; i++) {
@@ -173,7 +173,7 @@ export class QcoutPage {
       }
       else {
         this.halaman++;
-        this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", offset: offsetpicking, sort: "[Expected Receipt Date]" + " ASC " } })
+        this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", offset: offsetpicking, sort: "[Expected Receipt Date]" + " DESC " } })
           .subscribe(val => {
             let data = val['data'];
             for (let i = 0; i < data.length; i++) {
@@ -327,7 +327,7 @@ export class QcoutPage {
     this.toggled = this.toggled ? false : true;
   }
   doRefreshDM(refresher) {
-    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", sort: "[Expected Receipt Date]" + " ASC " } })
+    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
       .subscribe(val => {
         let data = val['data'];
         for (let i = 0; i < data.length; i++) {
@@ -1187,7 +1187,7 @@ export class QcoutPage {
   doPassedQC() {
     if (this.photos[0].img_src == '' || this.photos[1].img_src == '' || this.photos[2].img_src == '' || this.photos[3].img_src == '') {
       let alert = this.alertCtrl.create({
-        title: 'Error',
+        title: 'Warning',
         subTitle: 'Foto Tampak Kiri, Tampak Kanan, Tampak Atas dan Tampak Bawah harus terpenuhi',
         buttons: ['OK']
       });
@@ -1512,7 +1512,7 @@ export class QcoutPage {
 
                       })
                     this.datadm = [];
-                    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", sort: "[Expected Receipt Date]" + " ASC " } })
+                    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
                       .subscribe(val => {
                         let data = val['data'];
                         for (let i = 0; i < data.length; i++) {

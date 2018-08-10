@@ -63,34 +63,6 @@
           </button>
         </ion-list>
       </ion-item>
-      <ion-item *ngIf="rolearea == 'OUTBOUND'" class="side-header-list">
-        <ion-card-header class="side-header-list">
-          DELIVERY
-        </ion-card-header>
-        <ion-list class="side-list">
-          <button *ngIf="rolearea == 'OUTBOUND'" class="btn-side-menu" ion-item (click)="open('MapPage')" menuClose>
-            <ion-icon name="map"> Map</ion-icon>
-          </button>
-          <button *ngIf="rolearea == 'OUTBOUND'" class="btn-side-menu" ion-item (click)="open('TruckPage')" menuClose>
-            <ion-icon name="menu"> Truck</ion-icon>
-          </button>
-          <button *ngIf="rolearea == 'OUTBOUND'" class="btn-side-menu" ion-item (click)="open('LoadingPage')" menuClose>
-            <ion-icon name="filing"> Loading</ion-icon>
-          </button>
-          <button *ngIf="rolearea == 'OUTBOUND'" class="btn-side-menu" ion-item (click)="open('DeliveryPage')" menuClose>
-            <ion-icon name="paper-plane"> Delivery</ion-icon>
-          </button>
-          <button *ngIf="rolearea == 'OUTBOUND'" class="btn-side-menu" ion-item (click)="open('ReceivingcustPage')" menuClose>
-            <ion-icon name="thumbs-up"> Receiving Customer</ion-icon>
-          </button>
-          <button *ngIf="rolearea == 'OUTBOUND'" class="btn-side-menu" ion-item (click)="open('InstallationPage')" menuClose>
-            <ion-icon name="construct"> Installation</ion-icon>
-          </button>
-          <button *ngIf="rolearea == 'OUTBOUND'" class="btn-side-menu" ion-item (click)="open('StatusPage')" menuClose>
-            <ion-icon name="barcode"> Status</ion-icon>
-          </button>
-        </ion-list>
-      </ion-item>
       <ion-item class="side-header-list">
         <ion-card-header class="side-header-list">
           History

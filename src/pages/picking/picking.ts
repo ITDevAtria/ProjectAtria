@@ -80,6 +80,9 @@ export class PickingPage {
   public loader: any;
   public uuid: any;
   public name: any;
+  public pickingreleasesearch = [];
+  public listpickingsearch = [];
+  public totaldatalistpickingsearch: any;
 
   constructor(
     public navCtrl: NavController,
@@ -128,6 +131,7 @@ export class PickingPage {
           }
         })
     });
+    this.getPickingSearch();
     this.getpicking();
     this.toggled = false;
     this.groupby = ""
@@ -168,13 +172,11 @@ export class PickingPage {
                   if (this.pickingrelease.length == 0) {
                     this.listpicking.push(data[i]);
                     this.totaldatalistpicking = val['count'];
-                    this.searchpicking = this.listpicking;
                   }
                   else if (this.pickingrelease.length) {
                     if (this.pickingrelease[0].status == 'OPEN') {
                       this.listpicking.push(data[i]);
                       this.totaldatalistpicking = val['count'];
-                      this.searchpicking = this.listpicking;
                     }
                   }
                 });
@@ -183,6 +185,26 @@ export class PickingPage {
               this.halaman = -1
             }
             resolve();
+          });
+      }
+    });
+  }
+  getPickingSearch() {
+    this.api.get("tablenav", { params: { limit: 10000, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0", sort: "[Expected Receipt Date]" + " ASC " } })
+    .subscribe(val => {
+      let data = val['data'];
+      for (let i = 0; i < data.length; i++) {
+        this.api.get("table/picking_list", { params: { filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
+          .subscribe(val => {
+            this.pickingreleasesearch = val['data'];
+            if (this.pickingreleasesearch.length == 0) {
+              this.listpickingsearch.push(data[i]);
+              this.totaldatalistpickingsearch = val['count'];
+              this.searchpicking = this.listpickingsearch;
+            }
+            else if (this.pickingreleasesearch.length) {
+
+            }
           });
       }
     });

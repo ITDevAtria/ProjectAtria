@@ -53,7 +53,7 @@
       <ion-card *ngFor="let dm of datadm">
         <ion-item text-wrap>
           <h3 (click)="doDetail(dm)" style="font-weight:bold;padding-bottom:5px;">Receipt No - {{dm["Receipt No_"]}}</h3>
-          <p (click)="doDetail(dm)">Receipt Date : {{dm["Receipt Date"] | date: 'dd-MM-yyyy'}}</p>
+          <p (click)="doDetail(dm)">Expected Receipt Date : {{dm["Expected Receipt Date"] | date: 'dd-MM-yyyy'}}</p>
           <p (click)="doDetail(dm)">Store No : {{dm["Store No_"]}}</p>
           <p (click)="doDetail(dm)">SO No : {{dm["SO No_"]}}</p>
           <button item-end ion-button clear color="greenlake" (click)="doMyQC(dm)">
