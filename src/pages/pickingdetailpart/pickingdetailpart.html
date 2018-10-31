@@ -45,6 +45,13 @@
       </ion-refresher-content>
     </ion-refresher>
     <ion-list class="content-list-menu" *ngSwitchCase="'pickingdetailitem'">
+      <ion-item>
+        <ion-label>Sort By</ion-label>
+        <ion-select [(ngModel)]="sort">
+          <ion-option value="sub_location">Lokasi</ion-option>
+          <ion-option value="item_no">Item No</ion-option>
+        </ion-select>
+      </ion-item>
       <ion-card *ngFor="let picking of picking_detail">
         <ion-item text-wrap>
           <h3 style="font-weight:bold;padding-bottom:5px;">RECEIPT NO - {{picking.receipt_no}}</h3>

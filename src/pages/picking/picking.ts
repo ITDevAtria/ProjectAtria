@@ -131,7 +131,7 @@ export class PickingPage {
           }
         })
     });
-    this.getPickingSearch();
+    // this.getPickingSearch();
     this.getpicking();
     this.toggled = false;
     this.groupby = ""
@@ -189,8 +189,8 @@ export class PickingPage {
       }
     });
   }
-  getPickingSearch() {
-    this.api.get("tablenav", { params: { limit: 10000, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0", sort: "[Expected Receipt Date]" + " ASC " } })
+  /*getPickingSearch() {
+    this.api.get("tablenav", { params: { limit: 100, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0", sort: "[Expected Receipt Date]" + " ASC " } })
     .subscribe(val => {
       let data = val['data'];
       for (let i = 0; i < data.length; i++) {
@@ -208,7 +208,7 @@ export class PickingPage {
           });
       }
     });
-  }
+  }*/
   /*getSetGroupBy(groupby) {
     this.api.get('table/picking_list', { params: { limit: 30, filter: "status='OPEN'", group: groupby, groupSummary: "sum (qty) as qtysum" } })
       .subscribe(val => {

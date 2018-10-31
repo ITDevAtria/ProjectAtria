@@ -23,8 +23,10 @@ export class QcoutPage {
   private trans_sales_entry = [];
   private quality_control = [];
   private quality_control_clsd = [];
+  private quality_control_rejected = [];
   private qcresult = [];
   private qcresultclsd = [];
+  private qcresultrejected = [];
   private qcresultopen = [];
   private qcoutpic = [];
   private qcoutbarcode = [];
@@ -32,12 +34,14 @@ export class QcoutPage {
   searchdatadm: any;
   searchqc: any;
   searchqcclsd: any;
+  searchqcrejected: any;
   halaman = 0;
   totaldata: any;
   totaldataqc: any;
   totaldataqcclsd: any;
   totaldataqcresult: any;
   totaldataqcresultclsd: any;
+  totaldataqcresultrejected: any;
   totaldataqcresultopen: any;
   totalphoto: any;
   public toggled: boolean = false;
@@ -46,10 +50,12 @@ export class QcoutPage {
   private nextnoqcresult = '';
   public detailqc: boolean = false;
   public detailqcclsd: boolean = false;
+  public detailqcrejected: boolean = false;
   public button: boolean = false;
   private qclist = '';
   private batchnolist = '';
   private qclistclsd = '';
+  private qclistrejected = '';
   private batchnolistclsd = '';
   option: BarcodeScannerOptions;
   imageURI: string = '';
@@ -81,7 +87,7 @@ export class QcoutPage {
   public searchdata: any;
   public dataqcsearch = [];
   public name: any;
-
+  public qclistrejectedreceiptno: any;
 
   constructor(
     public navCtrl: NavController,
@@ -102,7 +108,6 @@ export class QcoutPage {
       content: 'Loading...'
     });
     this.loader.present()
-    this.getDataDMSearch();
     this.getDataDM();
     this.toggled = false;
     this.qc = "qcout"
@@ -114,20 +119,32 @@ export class QcoutPage {
     });
     this.storage.get('userid').then((val) => {
       this.userid = val;
-      this.api.get('table/qc_out', { params: { limit: 30, filter: "status='OPEN'" } })
-        .subscribe(val => {
-          this.quality_control = val['data']
-        });
-      this.api.get('table/qc_out', { params: { limit: 30, filter: "status='CLSD'" } })
-        .subscribe(val => {
-          this.quality_control_clsd = val['data']
-          this.searchqcclsd = this.quality_control_clsd
-        });
       this.api.get('table/user_role', { params: { filter: "id_user=" + "'" + this.userid + "'" } })
         .subscribe(val => {
           this.role = val['data']
           this.roleid = this.role[0].id_group
           console.log(this.roleid)
+          this.api.get('table/qc_out', { params: { limit: 10, filter: "status='OPEN' AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
+            .subscribe(val => {
+              this.quality_control = val['data']
+              this.searchqc = this.quality_control
+            });
+          this.api.get('table/qc_out', { params: { limit: 10, filter: "status='CLSD'  AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
+            .subscribe(val => {
+              this.quality_control_clsd = val['data']
+              this.searchqcclsd = this.quality_control_clsd
+            });
+          this.api.get('table/qc_out_result_reject', { params: { limit: 500, group: 'receipt_no' } })
+            .subscribe(val => {
+              let data = val['data']
+              for (let i = 0; i < data.length; i++) {
+                this.api.get('table/qc_out', { params: { limit: 500, filter: "receipt_no=" + "'" + data[i].receipt_no + "'   AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
+                  .subscribe(val => {
+                    this.quality_control_rejected.push(data[i]);
+                    this.searchqcrejected = this.quality_control_rejected
+                  });
+              }
+            });
         })
     });
   }
@@ -145,39 +162,20 @@ export class QcoutPage {
   doProfile() {
     this.navCtrl.push('UseraccountPage');
   }
-  getDataDMSearch() {
-    this.api.get("tablenav", { params: { limit: 10000, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
-    .subscribe(val => {
-      let data = val['data'];
-      for (let i = 0; i < data.length; i++) {
-        this.api.get('table/qc_out', { params: { limit: 10000, filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
-          .subscribe(val => {
-            this.dataqcsearch = val['data'];
-            if (this.dataqcsearch.length == 0) {
-              this.datadmsearch.push(data[i]);
-              this.totaldatadatadmsearch = val['count'];
-              this.searchdatadm = this.datadmsearch;
-            }
-            else if (this.dataqcsearch.length) {
-
-            }
-          });
-      }
-    });
-  }
   getDataDM() {
     return new Promise(resolve => {
-      let offsetpicking = 30 * this.halaman
+      let offsetpicking = 10 * this.halaman
       if (this.halaman == -1) {
         resolve();
       }
       else {
         this.halaman++;
-        this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", offset: offsetpicking, sort: "[Expected Receipt Date]" + " DESC " } })
+        this.api.get("tablenav", { params: { limit: 10, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", offset: offsetpicking, sort: "[Expected Receipt Date]" + " DESC " } })
           .subscribe(val => {
             let data = val['data'];
+            this.loader.dismiss()
             for (let i = 0; i < data.length; i++) {
-              this.api.get('table/qc_out', { params: { limit: 30, filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
+              this.api.get('table/qc_out', { params: { limit: 10, filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
                 .subscribe(val => {
                   this.dataqc = val['data'];
                   if (this.dataqc.length == 0) {
@@ -193,7 +191,6 @@ export class QcoutPage {
             if (data.length == 0) {
               this.halaman = -1
             }
-            this.loader.dismiss()
             resolve();
           });
       }
@@ -226,13 +223,13 @@ export class QcoutPage {
   // }
   getStagingqc() {
     return new Promise(resolve => {
-      let offsetqc = 30 * this.halaman
+      let offsetqc = 10 * this.halaman
       if (this.halaman == -1) {
         resolve();
       }
       else {
         this.halaman++;
-        this.api.get('table/qc_out', { params: { limit: 30, offset: offsetqc, filter: "status='OPEN'" } })
+        this.api.get('table/qc_out', { params: { limit: 10, offset: offsetqc, filter: "status='OPEN'  AND  (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
           .subscribe(val => {
             let data = val['data'];
             for (let i = 0; i < data.length; i++) {
@@ -251,13 +248,13 @@ export class QcoutPage {
   }
   getStagingqcclsd() {
     return new Promise(resolve => {
-      let offsetqc = 30 * this.halaman
+      let offsetqc = 10 * this.halaman
       if (this.halaman == -1) {
         resolve();
       }
       else {
         this.halaman++;
-        this.api.get('table/qc_out', { params: { limit: 30, offset: offsetqc, filter: "status='CLSD'", group: 'receipt_no' } })
+        this.api.get('table/qc_out', { params: { limit: 10, offset: offsetqc, filter: "status='CLSD'   AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
           .subscribe(val => {
             let data = val['data'];
             for (let i = 0; i < data.length; i++) {
@@ -276,26 +273,51 @@ export class QcoutPage {
   }
   getsearchdatadmDetail(ev: any) {
     // set val to the value of the searchbar
-    let val = ev.target.value;
+    var value = ev.target.value;
 
     // if the value is an empty string don't filter the items
-    if (val && val.trim() != '') {
-      this.datadm = this.searchdatadm.filter(dm => {
-        return dm["Receipt No_"].toLowerCase().indexOf(val.toLowerCase()) > -1;
-      })
+    if (value && value.trim() != '') {
+      this.api.get("tablenav", { params: { limit: 10, table: "CSB_LIVE$Delivery Management Header", filter: "[Receipt No_] LIKE '%" + value + "%'", sort: "[Expected Receipt Date]" + " DESC " } })
+        .subscribe(val => {
+          let datasearch = val['data']
+          this.datadm = datasearch.filter(dm => {
+            return dm["Receipt No_"].toLowerCase().indexOf(value.toLowerCase()) > -1;
+          })
+        });
     } else {
       this.datadm = this.searchdata;
     }
   }
-  getSearchQCclsd(ev: any) {
+  getSearchmyqc(ev: any) {
     // set val to the value of the searchbar
-    let val = ev.target.value;
+    let value = ev.target.value;
 
     // if the value is an empty string don't filter the items
-    if (val && val.trim() != '') {
-      this.quality_control_clsd = this.searchqcclsd.filter(qc => {
-        return qc.receipt_no.toLowerCase().indexOf(val.toLowerCase()) > -1;
-      })
+    if (value && value.trim() != '') {
+      this.api.get('table/qc_out', { params: { limit: 10, filter: "receipt_no LIKE" + "'%" + value + "%' AND status='OPEN'  AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
+        .subscribe(val => {
+          let datasearch = val['data']
+          this.quality_control = datasearch.filter(qc => {
+            return qc.receipt_no.toLowerCase().indexOf(value.toLowerCase()) > -1;
+          })
+        });
+    } else {
+      this.quality_control = this.searchqc;
+    }
+  }
+  getSearchQCclsd(ev: any) {
+    // set val to the value of the searchbar
+    let value = ev.target.value;
+
+    // if the value is an empty string don't filter the items
+    if (value && value.trim() != '') {
+      this.api.get('table/qc_out', { params: { limit: 10, filter: "receipt_no LIKE" + "'%" + value + "%' AND status='CLSD'  AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
+        .subscribe(val => {
+          let datasearch = val['data']
+          this.quality_control_clsd = datasearch.filter(qc => {
+            return qc.receipt_no.toLowerCase().indexOf(value.toLowerCase()) > -1;
+          })
+        });
     } else {
       this.quality_control_clsd = this.searchqcclsd;
     }
@@ -327,11 +349,11 @@ export class QcoutPage {
     this.toggled = this.toggled ? false : true;
   }
   doRefreshDM(refresher) {
-    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
+    this.api.get("tablenav", { params: { limit: 10, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
       .subscribe(val => {
         let data = val['data'];
         for (let i = 0; i < data.length; i++) {
-          this.api.get('table/qc_out', { params: { limit: 30, filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
+          this.api.get('table/qc_out', { params: { limit: 10, filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
             .subscribe(val => {
               this.dataqc = val['data'];
               if (this.dataqc.length == 0) {
@@ -348,7 +370,7 @@ export class QcoutPage {
       });
   }
   doRefreshmyqc(refresher) {
-    this.api.get('table/qc_out', { params: { limit: 30, filter: "status='OPEN'" } })
+    this.api.get('table/qc_out', { params: { limit: 10, filter: "status='OPEN'  AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
       .subscribe(val => {
         this.quality_control = val['data'];
         this.totaldataqc = val['count'];
@@ -357,12 +379,26 @@ export class QcoutPage {
       });
   }
   doRefreshmyqcclsd(refresher) {
-    this.api.get('table/qc_out', { params: { limit: 30, filter: "status='CLSD'" } })
+    this.api.get('table/qc_out', { params: { limit: 10, filter: "status='CLSD'  AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
       .subscribe(val => {
         this.quality_control_clsd = val['data'];
         this.totaldataqcclsd = val['count'];
         this.searchqcclsd = this.quality_control_clsd;
         refresher.complete();
+      });
+  }
+  doRefreshqcrejected(refresher) {
+    this.api.get('table/qc_out_result_reject', { params: { limit: 500, group: 'receipt_no' } })
+      .subscribe(val => {
+        let data = val['data']
+        refresher.complete();
+        for (let i = 0; i < data.length; i++) {
+          this.api.get('table/qc_out', { params: { limit: 500, filter: "receipt_no=" + "'" + data[i].receipt_no + "'  AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
+            .subscribe(val => {
+              this.quality_control_rejected.push(data[i]);
+              this.searchqcrejected = this.quality_control_rejected
+            });
+        }
       });
   }
   ionViewDidLoad() {
@@ -380,35 +416,59 @@ export class QcoutPage {
     });
   }
   doDetailQC(myqc) {
-    this.qcresult = [];
+    this.loader = this.loadingCtrl.create({
+      // cssClass: 'transparent',
+      content: 'Loading...'
+    });
+    this.loader.present()
     this.qclist = myqc.qc_no;
     this.qcqty = myqc.qty
     this.detailqc = this.detailqc ? false : true;
     this.getQCResult(myqc);
   }
   doDetailQCclsd(myqc) {
-    this.qcresultclsd = [];
+    this.loader = this.loadingCtrl.create({
+      // cssClass: 'transparent',
+      content: 'Loading...'
+    });
+    this.loader.present()
     this.qclistclsd = myqc.qc_no;
     this.qcqty = myqc.qty
     this.detailqcclsd = this.detailqcclsd ? false : true;
     this.getQCResultclsd(myqc);
   }
-  getQCResult(myqc) {
-    return new Promise(resolve => {
-      this.api.get("table/qc_out_result", { params: { limit: 1000, filter: 'qc_no=' + "'" + myqc.qc_no + "'" } }).subscribe(val => {
-        this.qcresult = val['data'];
-        this.totaldataqcresult = val['count'];
-        resolve();
-      })
+  doDetailQCrejected(myqc) {
+    this.loader = this.loadingCtrl.create({
+      // cssClass: 'transparent',
+      content: 'Loading...'
     });
+    this.loader.present()
+    this.qcresultrejected = [];
+    this.qclistrejected = myqc.qc_no;
+    this.qclistrejectedreceiptno = myqc.receipt_no
+    this.qcqty = myqc.qty
+    this.detailqcrejected = this.detailqcrejected ? false : true;
+    this.getQCResultrejected(myqc);
+  }
+  getQCResult(myqc) {
+    this.api.get("table/qc_out_result", { params: { limit: 10, filter: 'qc_no=' + "'" + myqc.qc_no + "'" } }).subscribe(val => {
+      this.qcresult = val['data'];
+      this.totaldataqcresult = val['count'];
+      this.loader.dismiss()
+    })
   }
   getQCResultclsd(myqc) {
-    return new Promise(resolve => {
-      this.api.get("table/qc_out_result", { params: { limit: 1000, filter: 'receipt_no=' + "'" + myqc.receipt_no + "'" } }).subscribe(val => {
-        this.qcresultclsd = val['data'];
-        this.totaldataqcresultclsd = val['count'];
-        resolve();
-      })
+    this.api.get("table/qc_out_result", { params: { limit: 10, filter: 'receipt_no=' + "'" + myqc.receipt_no + "'" } }).subscribe(val => {
+      this.qcresultclsd = val['data'];
+      this.totaldataqcresultclsd = val['count'];
+      this.loader.dismiss()
+    });
+  }
+  getQCResultrejected(myqc) {
+    this.api.get("table/qc_out_result_reject", { params: { limit: 10, filter: 'receipt_no=' + "'" + myqc.receipt_no + "'" } }).subscribe(val => {
+      this.qcresultrejected = val['data'];
+      this.totaldataqcresultrejected = val['count'];
+      this.loader.dismiss()
     });
   }
   doChecked() {
@@ -434,7 +494,7 @@ export class QcoutPage {
             var barcodeno = data.barcodeno;
             var batchno = barcodeno.substring(0, 6);
             var itemno = barcodeno.substring(6, 14);
-            this.api.get('table/qc_out', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + " AND " + "item_no=" + "'" + itemno + "'" + " AND " + "status='OPEN'" } })
+            this.api.get('table/qc_out', { params: { limit: 10, filter: "batch_no=" + "'" + batchno + "'" + " AND " + "item_no=" + "'" + itemno + "'" + " AND " + "status='OPEN'" } })
               .subscribe(val => {
                 this.qcoutbarcode = val['data'];
                 if (this.qcoutbarcode.length == 0) {
@@ -539,12 +599,12 @@ export class QcoutPage {
     document.getElementById("myHeader").style.display = "block";
     this.button = false;
     this.qcresultclsd = [];
-    this.api.get("table/qc_out_result", { params: { limit: 1000, filter: 'receipt_no=' + "'" + this.receiptno + "'" } }).subscribe(val => {
+    this.api.get("table/qc_out_result", { params: { limit: 10, filter: 'receipt_no=' + "'" + this.receiptno + "'" } }).subscribe(val => {
       this.qcresultclsd = val['data'];
       this.totaldataqcresultclsd = val['count'];
     });
     this.qcresult = [];
-    this.api.get("table/qc_out_result", { params: { limit: 1000, filter: 'qc_no=' + "'" + this.qcno + "'" } }).subscribe(val => {
+    this.api.get("table/qc_out_result", { params: { limit: 10, filter: 'qc_no=' + "'" + this.qcno + "'" } }).subscribe(val => {
       this.qcresult = val['data'];
       this.totaldataqcresult = val['count'];
     });
@@ -578,6 +638,11 @@ export class QcoutPage {
             {
               text: 'Start',
               handler: () => {
+                let loader = this.loadingCtrl.create({
+                  // cssClass: 'transparent',
+                  content: 'Loading...'
+                });
+                loader.present()
                 let datetime = moment().format('YYYY-MM-DD HH:mm:ss');
                 const headersa = new HttpHeaders()
                   .set("Content-Type", "application/json");
@@ -585,7 +650,7 @@ export class QcoutPage {
                 this.api.post("table/link_image",
                   {
                     "no": UUID.UUID(),
-                    "param": '01',
+                    "param": '001',
                     "param_desc": 'Tampak Kiri',
                     "parent": result.uuid,
                     "table_name": "Qc_out_result",
@@ -604,7 +669,7 @@ export class QcoutPage {
                       this.api.post("table/link_image",
                         {
                           "no": UUID.UUID(),
-                          "param": '02',
+                          "param": '002',
                           "param_desc": 'Tampak Kanan',
                           "parent": result.uuid,
                           "table_name": "Qc_out_result",
@@ -623,7 +688,7 @@ export class QcoutPage {
                             this.api.post("table/link_image",
                               {
                                 "no": UUID.UUID(),
-                                "param": '03',
+                                "param": '003',
                                 "param_desc": 'Tampak Atas',
                                 "parent": result.uuid,
                                 "table_name": "Qc_out_result",
@@ -642,7 +707,7 @@ export class QcoutPage {
                                   this.api.post("table/link_image",
                                     {
                                       "no": UUID.UUID(),
-                                      "param": '04',
+                                      "param": '004',
                                       "param_desc": 'Tampak Bawah',
                                       "parent": result.uuid,
                                       "table_name": "Qc_out_result",
@@ -658,244 +723,18 @@ export class QcoutPage {
                                     { headersa })
                                     .subscribe(
                                       (val) => {
-                                        this.api.post("table/link_image",
-                                          {
-                                            "no": UUID.UUID(),
-                                            "param": '05',
-                                            "param_desc": 'Lainnya 1',
-                                            "parent": result.uuid,
-                                            "table_name": "Qc_out_result",
-                                            "img_src": '',
-                                            "file_name": '',
-                                            "description": '',
-                                            "latitude": "",
-                                            "longitude": "",
-                                            "location_code": '',
-                                            "upload_date": datetime,
-                                            "upload_by": ""
-                                          },
-                                          { headersa })
-                                          .subscribe(
-                                            (val) => {
-                                              this.api.post("table/link_image",
-                                                {
-                                                  "no": UUID.UUID(),
-                                                  "param": '06',
-                                                  "param_desc": 'Lainnya 2',
-                                                  "parent": result.uuid,
-                                                  "table_name": "Qc_out_result",
-                                                  "img_src": '',
-                                                  "file_name": '',
-                                                  "description": '',
-                                                  "latitude": "",
-                                                  "longitude": "",
-                                                  "location_code": '',
-                                                  "upload_date": datetime,
-                                                  "upload_by": ""
-                                                },
-                                                { headersa })
-                                                .subscribe(
-                                                  (val) => {
-                                                    this.api.post("table/link_image",
-                                                      {
-                                                        "no": UUID.UUID(),
-                                                        "param": '07',
-                                                        "param_desc": 'Lainnya 3',
-                                                        "parent": result.uuid,
-                                                        "table_name": "Qc_out_result",
-                                                        "img_src": '',
-                                                        "file_name": '',
-                                                        "description": '',
-                                                        "latitude": "",
-                                                        "longitude": "",
-                                                        "location_code": '',
-                                                        "upload_date": datetime,
-                                                        "upload_by": ""
-                                                      },
-                                                      { headersa })
-                                                      .subscribe(
-                                                        (val) => {
-                                                          this.api.post("table/link_image",
-                                                            {
-                                                              "no": UUID.UUID(),
-                                                              "param": '08',
-                                                              "param_desc": 'Lainnya 4',
-                                                              "parent": result.uuid,
-                                                              "table_name": "Qc_out_result",
-                                                              "img_src": '',
-                                                              "file_name": '',
-                                                              "description": '',
-                                                              "latitude": "",
-                                                              "longitude": "",
-                                                              "location_code": '',
-                                                              "upload_date": datetime,
-                                                              "upload_by": ""
-                                                            },
-                                                            { headersa })
-                                                            .subscribe(
-                                                              (val) => {
-                                                                this.api.post("table/link_image",
-                                                                  {
-                                                                    "no": UUID.UUID(),
-                                                                    "param": '09',
-                                                                    "param_desc": 'Lainnya 5',
-                                                                    "parent": result.uuid,
-                                                                    "table_name": "Qc_out_result",
-                                                                    "img_src": '',
-                                                                    "file_name": '',
-                                                                    "description": '',
-                                                                    "latitude": "",
-                                                                    "longitude": "",
-                                                                    "location_code": '',
-                                                                    "upload_date": datetime,
-                                                                    "upload_by": ""
-                                                                  },
-                                                                  { headersa })
-                                                                  .subscribe(
-                                                                    (val) => {
-                                                                      let time = moment().format('HH:mm:ss');
-                                                                      let date = moment().format('YYYY-MM-DD');
-                                                                      let uuid = UUID.UUID();
-                                                                      const headers = new HttpHeaders()
-                                                                        .set("Content-Type", "application/json");
-                                                                      this.api.put("table/qc_out_result",
-                                                                        {
-                                                                          "qc_result_no": result.qc_result_no,
-                                                                          "date_start": date,
-                                                                          "time_start": time,
-                                                                        },
-                                                                        { headers })
-                                                                        .subscribe(val => {
-                                                                        });
-                                                                      this.api.get("table/link_image", { params: { limit: 100, filter: 'parent=' + "'" + result.uuid + "'", sort: "param" + " ASC " } })
-                                                                        .subscribe(val => {
-                                                                          this.photos = val['data'];
-                                                                          this.totalphoto = val['count'];
-                                                                          this.uuidqcresult = result.uuid;
-                                                                          this.qcnoresult = result.qc_result_no;
-                                                                          this.qcno = result.qc_no;
-                                                                          this.receiptno = result.receipt_no;
-                                                                          this.itemno = result.item_no;
-                                                                          this.qcstatus = result.qc_status
-                                                                          if (result.qc_status != 'PASSED') {
-                                                                            document.getElementById("myQCChecking").style.display = "block";
-                                                                            document.getElementById("myBTNChecking").style.display = "block";
-                                                                            // document.getElementById("button").style.display = "block";
-                                                                            document.getElementById("myHeader").style.display = "none";
-                                                                            this.button = true;
-                                                                          }
-                                                                          else {
-                                                                            document.getElementById("myQCChecking").style.display = "block";
-                                                                            document.getElementById("myBTNChecking").style.display = "none";
-                                                                            // document.getElementById("button").style.display = "none";
-                                                                            document.getElementById("myHeader").style.display = "none";
-                                                                          }
-                                                                        });
-                                                                    }, err => {
-                                                                      this.api.post("table/link_image",
-                                                                        {
-                                                                          "no": UUID.UUID(),
-                                                                          "param": '09',
-                                                                          "param_desc": 'Lainnya 5',
-                                                                          "parent": result.uuid,
-                                                                          "table_name": "Qc_out_result",
-                                                                          "img_src": '',
-                                                                          "file_name": '',
-                                                                          "description": '',
-                                                                          "latitude": "",
-                                                                          "longitude": "",
-                                                                          "location_code": '',
-                                                                          "upload_date": datetime,
-                                                                          "upload_by": ""
-                                                                        },
-                                                                        { headersa })
-                                                                        .subscribe()
-                                                                    });
-                                                              }, err => {
-                                                                this.api.post("table/link_image",
-                                                                  {
-                                                                    "no": UUID.UUID(),
-                                                                    "param": '08',
-                                                                    "param_desc": 'Lainnya 4',
-                                                                    "parent": result.uuid,
-                                                                    "table_name": "Qc_out_result",
-                                                                    "img_src": '',
-                                                                    "file_name": '',
-                                                                    "description": '',
-                                                                    "latitude": "",
-                                                                    "longitude": "",
-                                                                    "location_code": '',
-                                                                    "upload_date": datetime,
-                                                                    "upload_by": ""
-                                                                  },
-                                                                  { headersa })
-                                                                  .subscribe()
-                                                              });
-                                                        }, err => {
-                                                          this.api.post("table/link_image",
-                                                            {
-                                                              "no": UUID.UUID(),
-                                                              "param": '07',
-                                                              "param_desc": 'Lainnya 3',
-                                                              "parent": result.uuid,
-                                                              "table_name": "Qc_out_result",
-                                                              "img_src": '',
-                                                              "file_name": '',
-                                                              "description": '',
-                                                              "latitude": "",
-                                                              "longitude": "",
-                                                              "location_code": '',
-                                                              "upload_date": datetime,
-                                                              "upload_by": ""
-                                                            },
-                                                            { headersa })
-                                                            .subscribe()
-                                                        });
-                                                  }, err => {
-                                                    this.api.post("table/link_image",
-                                                      {
-                                                        "no": UUID.UUID(),
-                                                        "param": '06',
-                                                        "param_desc": 'Lainnya 2',
-                                                        "parent": result.uuid,
-                                                        "table_name": "Qc_out_result",
-                                                        "img_src": '',
-                                                        "file_name": '',
-                                                        "description": '',
-                                                        "latitude": "",
-                                                        "longitude": "",
-                                                        "location_code": '',
-                                                        "upload_date": datetime,
-                                                        "upload_by": ""
-                                                      },
-                                                      { headersa })
-                                                      .subscribe()
-                                                  });
-                                            }, err => {
-                                              this.api.post("table/link_image",
-                                                {
-                                                  "no": UUID.UUID(),
-                                                  "param": '05',
-                                                  "param_desc": 'Lainnya 1',
-                                                  "parent": result.uuid,
-                                                  "table_name": "Qc_out_result",
-                                                  "img_src": '',
-                                                  "file_name": '',
-                                                  "description": '',
-                                                  "latitude": "",
-                                                  "longitude": "",
-                                                  "location_code": '',
-                                                  "upload_date": datetime,
-                                                  "upload_by": ""
-                                                },
-                                                { headersa })
-                                                .subscribe()
-                                            });
+                                        for (let i = 0; i < 50; i++) {
+                                          let resultuuid = result.uuid
+                                          this.doInsertLinkImage(resultuuid, i)
+                                        }
+                                        this.updateFoto(result)
+                                        this.getFoto(result)
+                                        loader.dismiss();
                                       }, err => {
                                         this.api.post("table/link_image",
                                           {
                                             "no": UUID.UUID(),
-                                            "param": '04',
+                                            "param": '004',
                                             "param_desc": 'Tampak Bawah',
                                             "parent": result.uuid,
                                             "table_name": "Qc_out_result",
@@ -915,7 +754,7 @@ export class QcoutPage {
                                   this.api.post("table/link_image",
                                     {
                                       "no": UUID.UUID(),
-                                      "param": '03',
+                                      "param": '003',
                                       "param_desc": 'Tampak Atas',
                                       "parent": result.uuid,
                                       "table_name": "Qc_out_result",
@@ -935,7 +774,7 @@ export class QcoutPage {
                             this.api.post("table/link_image",
                               {
                                 "no": UUID.UUID(),
-                                "param": '02',
+                                "param": '002',
                                 "param_desc": 'Tampak Kanan',
                                 "parent": result.uuid,
                                 "table_name": "Qc_out_result",
@@ -955,7 +794,7 @@ export class QcoutPage {
                       this.api.post("table/link_image",
                         {
                           "no": UUID.UUID(),
-                          "param": '01',
+                          "param": '001',
                           "param_desc": 'Tampak Kiri',
                           "parent": result.uuid,
                           "table_name": "Qc_out_result",
@@ -1005,6 +844,88 @@ export class QcoutPage {
       }
     }
   }
+  updateFoto(result) {
+    let time = moment().format('HH:mm:ss');
+    let date = moment().format('YYYY-MM-DD');
+    let uuid = UUID.UUID();
+    const headers = new HttpHeaders()
+      .set("Content-Type", "application/json");
+    this.api.put("table/qc_out_result",
+      {
+        "qc_result_no": result.qc_result_no,
+        "date_start": date,
+        "time_start": time,
+      },
+      { headers })
+      .subscribe(val => {
+      }, err => {
+        this.updateFoto(result)
+      });
+  }
+  getFoto(result) {
+    this.api.get("table/link_image", { params: { limit: 100, filter: 'parent=' + "'" + result.uuid + "'", sort: "param" + " ASC " } })
+      .subscribe(val => {
+        this.photos = val['data'];
+        this.totalphoto = val['count'];
+        this.uuidqcresult = result.uuid;
+        this.qcnoresult = result.qc_result_no;
+        this.qcno = result.qc_no;
+        this.receiptno = result.receipt_no;
+        this.itemno = result.item_no;
+        this.qcstatus = result.qc_status
+        if (result.qc_status != 'PASSED') {
+          document.getElementById("myQCChecking").style.display = "block";
+          document.getElementById("myBTNChecking").style.display = "block";
+          // document.getElementById("button").style.display = "block";
+          document.getElementById("myHeader").style.display = "none";
+          this.button = true;
+        }
+        else {
+          document.getElementById("myQCChecking").style.display = "block";
+          document.getElementById("myBTNChecking").style.display = "none";
+          // document.getElementById("button").style.display = "none";
+          document.getElementById("myHeader").style.display = "none";
+        }
+      }, err => {
+        this.getFoto(result)
+      });
+  }
+  doInsertLinkImage(resultuuid, i) {
+    let ia = i + 1
+    let parami = i + 5
+    let ib;
+    if (parami < 10) {
+      ib = '0' + parami
+    }
+    else {
+      ib = parami
+    }
+    let datetime = moment().format('YYYY-MM-DD HH:mm:ss');
+    const headersa = new HttpHeaders()
+      .set("Content-Type", "application/json");
+    this.api.post("table/link_image",
+      {
+        "no": UUID.UUID(),
+        "param": '0' + ib,
+        "param_desc": 'Lainnya ' + ia,
+        "parent": resultuuid,
+        "table_name": "Qc_out_result",
+        "img_src": '',
+        "file_name": '',
+        "description": '',
+        "latitude": "",
+        "longitude": "",
+        "location_code": '',
+        "upload_date": datetime,
+        "upload_by": ""
+      },
+      { headersa })
+      .subscribe(val => {
+
+      }, err => {
+        this.doInsertLinkImage(resultuuid, i)
+      })
+  }
   doViewPhoto(foto) {
     this.viewfoto = foto.img_src
     this.param = foto.param
@@ -1016,7 +937,7 @@ export class QcoutPage {
   doPreviousFoto() {
     let param = parseInt(this.param) - parseInt('01')
     let paramprevious: string = "0" + param
-    this.api.get("table/link_image", { params: { filter: 'parent=' + "'" + this.parent + "' AND param=" + "'" + paramprevious + "'"} }).subscribe(val => {
+    this.api.get("table/link_image", { params: { limit: 100, filter: 'parent=' + "'" + this.parent + "' AND param=" + "'" + paramprevious + "'" } }).subscribe(val => {
       this.photosview = val['data'];
       this.viewfoto = this.photosview[0].img_src
       this.param = this.photosview[0].param
@@ -1028,7 +949,7 @@ export class QcoutPage {
   doNextFoto() {
     let param = parseInt(this.param) + parseInt('01')
     let parampnext: string = "0" + param
-    this.api.get("table/link_image", { params: { filter: 'parent=' + "'" + this.parent + "' AND param=" + "'" + parampnext + "'"} }).subscribe(val => {
+    this.api.get("table/link_image", { params: { limit: 100, filter: 'parent=' + "'" + this.parent + "' AND param=" + "'" + parampnext + "'" } }).subscribe(val => {
       this.photosview = val['data'];
       this.viewfoto = this.photosview[0].img_src
       this.param = this.photosview[0].param
@@ -1071,7 +992,7 @@ export class QcoutPage {
                 (val) => {
                   this.presentToast("Image deleted successfully");
                   this.photos = [];
-                  this.api.get("table/link_image", { params: { filter: 'parent=' + "'" + this.uuidqcresult + "'", sort: "param" + " ASC " } }).subscribe(val => {
+                  this.api.get("table/link_image", { params: { limit: 100, filter: 'parent=' + "'" + this.uuidqcresult + "'", sort: "param" + " ASC " } }).subscribe(val => {
                     this.photos = val['data'];
                     this.totalphoto = val['count'];
                   });
@@ -1083,91 +1004,95 @@ export class QcoutPage {
     alert.present();
   }
   doCamera(foto) {
-    if (this.qcstatus != 'PASSED') {
-      let options: CameraOptions = {
-        quality: 50,
-        destinationType: this.camera.DestinationType.FILE_URI
-      }
-      options.sourceType = this.camera.PictureSourceType.CAMERA
+    this.api.get("table/configuration_picture").subscribe(val => {
+      let configuration = val['data'];
+      console.log(configuration)
+      if (this.qcstatus != 'PASSED') {
+        let options: CameraOptions = {
+          quality: configuration[0].camera_quality,
+          destinationType: this.camera.DestinationType.FILE_URI
+        }
+        options.sourceType = this.camera.PictureSourceType.CAMERA
 
-      this.camera.getPicture(options).then((imageData) => {
-        let alert = this.alertCtrl.create({
-          title: 'Description',
-          inputs: [
-            {
-              name: 'description',
-              placeholder: 'Description'
-            }
-          ],
-          buttons: [
-            {
-              text: 'SAVE',
-              handler: datadesc => {
-                this.imageURI = imageData;
-                this.imageFileName = this.imageURI;
-                if (this.imageURI == '') return;
-                let loader = this.loadingCtrl.create({
-                  content: "Uploading..."
-                });
-                loader.present();
-                const fileTransfer: FileTransferObject = this.transfer.create();
-
-                let uuid = UUID.UUID();
-                this.uuid = uuid;
-                let options: FileUploadOptions = {
-                  fileKey: 'fileToUpload',
-                  //fileName: this.imageURI.substr(this.imageURI.lastIndexOf('/') + 1),
-                  fileName: this.receiptno + "-" + this.itemno + "-" + foto.param + uuid + '.jpeg',
-                  chunkedMode: true,
-                  mimeType: "image/jpeg",
-                  headers: {}
-                }
-
-                let url = "http://101.255.60.202/serverapi/api/Upload";
-                fileTransfer.upload(this.imageURI, url, options)
-                  .then((data) => {
-                    loader.dismiss();
-                    let date = moment().format('YYYY-MM-DD HH:mm:ss');
-                    const headers = new HttpHeaders()
-                      .set("Content-Type", "application/json");
-
-                    this.api.put("table/link_image",
-                      {
-                        "no": foto.no,
-                        "img_src": 'http://101.255.60.202/serverapi/img/' + this.receiptno + "-" + this.itemno + "-" + foto.param + uuid,
-                        "file_name": this.receiptno + "-" + this.itemno + "-" + foto.param + uuid,
-                        "description": datadesc.description,
-                        "upload_date": date,
-                        "upload_by": ""
-                      },
-                      { headers })
-                      .subscribe(
-                        (val) => {
-                          this.presentToast("Image uploaded successfully");
-                          this.photos = [];
-                          this.api.get("table/link_image", { params: { filter: 'parent=' + "'" + this.uuidqcresult + "'", sort: "param" + " ASC " } }).subscribe(val => {
-                            this.photos = val['data'];
-                            this.totalphoto = val['count'];
-                          });
-                        });
-                    this.imageURI = '';
-                    this.imageFileName = '';
-                  }, (err) => {
-                    loader.dismiss();
-                    this.presentToast('Camera is closed');
-                  });
+        this.camera.getPicture(options).then((imageData) => {
+          let alert = this.alertCtrl.create({
+            title: 'Description',
+            inputs: [
+              {
+                name: 'description',
+                placeholder: 'Description'
               }
-            }
-          ]
+            ],
+            buttons: [
+              {
+                text: 'SAVE',
+                handler: datadesc => {
+                  this.imageURI = imageData;
+                  this.imageFileName = this.imageURI;
+                  if (this.imageURI == '') return;
+                  let loader = this.loadingCtrl.create({
+                    content: "Uploading..."
+                  });
+                  loader.present();
+                  const fileTransfer: FileTransferObject = this.transfer.create();
+
+                  let uuid = UUID.UUID();
+                  this.uuid = uuid;
+                  let options: FileUploadOptions = {
+                    fileKey: 'fileToUpload',
+                    //fileName: this.imageURI.substr(this.imageURI.lastIndexOf('/') + 1),
+                    fileName: this.receiptno + "-" + this.itemno + "-" + foto.param + uuid + '.jpeg',
+                    chunkedMode: true,
+                    mimeType: "image/jpeg",
+                    headers: {}
+                  }
+
+                  let url = "http://10.10.10.7/serverapi/api/Upload";
+                  fileTransfer.upload(this.imageURI, url, options)
+                    .then((data) => {
+                      loader.dismiss();
+                      let date = moment().format('YYYY-MM-DD HH:mm:ss');
+                      const headers = new HttpHeaders()
+                        .set("Content-Type", "application/json");
+
+                      this.api.put("table/link_image",
+                        {
+                          "no": foto.no,
+                          "img_src": 'http://10.10.10.7/serverapi/img/' + this.receiptno + "-" + this.itemno + "-" + foto.param + uuid,
+                          "file_name": this.receiptno + "-" + this.itemno + "-" + foto.param + uuid,
+                          "description": datadesc.description,
+                          "upload_date": date,
+                          "upload_by": ""
+                        },
+                        { headers })
+                        .subscribe(
+                          (val) => {
+                            this.presentToast("Image uploaded successfully");
+                            this.photos = [];
+                            this.api.get("table/link_image", { params: { limit: 100, filter: 'parent=' + "'" + this.uuidqcresult + "'", sort: "param" + " ASC " } }).subscribe(val => {
+                              this.photos = val['data'];
+                              this.totalphoto = val['count'];
+                            });
+                          });
+                      this.imageURI = '';
+                      this.imageFileName = '';
+                    }, (err) => {
+                      loader.dismiss();
+                      this.presentToast('Silahkan Coba lagi');
+                    });
+                }
+              }
+            ]
+          });
+          alert.present();
+        }, (err) => {
+          this.presentToast('This Platform is Not Supported');
         });
-        alert.present();
-      }, (err) => {
-        this.presentToast('This Platform is Not Supported');
-      });
-    }
-    else {
-      this.doViewPhoto(foto);
-    }
+      }
+      else {
+        this.doViewPhoto(foto);
+      }
+    });
   }
   presentToast(msg) {
     let toast = this.toastCtrl.create({
@@ -1254,24 +1179,26 @@ export class QcoutPage {
                                   },
                                   { headers })
                                   .subscribe(val => {
-                                    this.api.get('table/qc_out', { params: { limit: 30, filter: "status='OPEN'" } })
+                                    this.api.get('table/qc_out', { params: { limit: 10, filter: "status='OPEN'   AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
                                       .subscribe(val => {
                                         this.quality_control = val['data'];
                                         this.totaldataqc = val['count'];
+                                        this.searchqc = this.quality_control
                                       });
-                                    this.api.get('table/qc_out', { params: { limit: 30, filter: "status='CLSD'" } })
+                                    this.api.get('table/qc_out', { params: { limit: 10, filter: "status='CLSD'   AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
                                       .subscribe(val => {
                                         this.quality_control_clsd = val['data']
                                         this.searchqcclsd = this.quality_control_clsd
                                       });
                                   });
                               }
-                              this.api.get('table/qc_out', { params: { limit: 30, filter: "status='OPEN'" } })
+                              this.api.get('table/qc_out', { params: { limit: 10, filter: "status='OPEN'   AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
                                 .subscribe(val => {
                                   this.quality_control = val['data'];
                                   this.totaldataqc = val['count'];
+                                  this.searchqc = this.quality_control
                                 });
-                              this.api.get('table/qc_out', { params: { limit: 30, filter: "status='CLSD'" } })
+                              this.api.get('table/qc_out', { params: { limit: 10, filter: "status='CLSD'  AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
                                 .subscribe(val => {
                                   this.quality_control_clsd = val['data']
                                   this.searchqcclsd = this.quality_control_clsd
@@ -1409,7 +1336,7 @@ export class QcoutPage {
                                         },
                                         { headers })
                                         .subscribe(val => {
-                                          this.api.get('table/qc_out', { params: { limit: 30, filter: "status='OPEN'" } })
+                                          this.api.get('table/qc_out', { params: { limit: 10, filter: "status='OPEN'   AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
                                             .subscribe(val => {
                                               this.quality_control = val['data'];
                                               this.totaldataqc = val['count'];
@@ -1501,7 +1428,7 @@ export class QcoutPage {
                   },
                   { headers })
                   .subscribe(val => {
-                    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Line", filter: "[Receipt No_]=" + "'" + dm["Receipt No_"] + "'" } })
+                    this.api.get("tablenav", { params: { limit: 10, table: "CSB_LIVE$Delivery Management Line", filter: "[Receipt No_]=" + "'" + dm["Receipt No_"] + "'" } })
                       .subscribe(val => {
                         let data = val['data']
                         for (let i = 0; i < data.length; i++) {
@@ -1512,11 +1439,11 @@ export class QcoutPage {
 
                       })
                     this.datadm = [];
-                    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
+                    this.api.get("tablenav", { params: { limit: 10, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
                       .subscribe(val => {
                         let data = val['data'];
                         for (let i = 0; i < data.length; i++) {
-                          this.api.get('table/qc_out', { params: { limit: 30, filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
+                          this.api.get('table/qc_out', { params: { limit: 10, filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
                             .subscribe(val => {
                               this.dataqc = val['data'];
                               if (this.dataqc.length == 0) {
@@ -1530,7 +1457,7 @@ export class QcoutPage {
                             });
                         }
                       });
-                    this.api.get('table/qc_out', { params: { limit: 30, filter: "status='OPEN'" } })
+                    this.api.get('table/qc_out', { params: { limit: 10, filter: "status='OPEN'   AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
                       .subscribe(val => {
                         this.quality_control = val['data']
                         let alert = this.alertCtrl.create({
