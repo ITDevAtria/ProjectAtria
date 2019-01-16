@@ -21,9 +21,9 @@
     <ion-segment-button value="receiving">
       Receiving
     </ion-segment-button>
-    <ion-segment-button value="history">
+    <!-- <ion-segment-button value="history">
       History
-    </ion-segment-button>
+    </ion-segment-button> -->
   </ion-segment>
 
   <div [ngSwitch]="rcv">
@@ -43,7 +43,7 @@
         </ion-avatar>
         <div no-padding>
           <h2>PO No : {{po.order_no}}</h2>
-          <ion-note >Expected Receiving Date : {{po.expected_receipt_date | date: "dd MMMM yyyy"}}</ion-note>
+          <div style="color:#4a4a4a;">Expected Receiving Date : {{po.expected_receipt_date | date: "dd-MM-yyyy"}}</div>
         </div>
       </ion-item>
       <ion-infinite-scroll (ionInfinite)="doInfinite($event)">

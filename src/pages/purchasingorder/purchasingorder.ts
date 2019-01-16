@@ -597,6 +597,7 @@ export class PurchasingorderPage {
                               {
                                 "code": code,
                                 "order_no": data[i]["Document No_"],
+                                "line_no": data[i]["Line No_"],
                                 "batch_no": batch,
                                 "item_no": data[i].No_,
                                 "location_code": '81003',
@@ -615,6 +616,58 @@ export class PurchasingorderPage {
                               { headers })
                               .subscribe(
                                 (val) => {
+                                }, err => {
+                                  this.api.post("table/purchasing_order_detail",
+                              {
+                                "code": code,
+                                "order_no": data[i]["Document No_"],
+                                "line_no": data[i]["Line No_"],
+                                "batch_no": batch,
+                                "item_no": data[i].No_,
+                                "location_code": '81003',
+                                "expected_receipt_date": data[i]["Expected Receipt Date"],
+                                "description": data[i].Description,
+                                "unit": data[i]["Unit of Measure"],
+                                "qty": qty,
+                                "vendor_no": data[i]["Buy-from Vendor No_"],
+                                "vendor_status": data[i]["Gen_ Bus_ Posting Group"],
+                                "division": data[i].Division,
+                                "item_category_code": data[i]["Item Category Code"],
+                                "product_group_code": data[i]["Product Group Code"],
+                                "status": 'OPEN',
+                                "uuid": this.uuid
+                              },
+                              { headers })
+                              .subscribe(
+                                (val) => {
+                                }, err => {
+                                  this.api.post("table/purchasing_order_detail",
+                              {
+                                "code": code,
+                                "order_no": data[i]["Document No_"],
+                                "line_no": data[i]["Line No_"],
+                                "batch_no": batch,
+                                "item_no": data[i].No_,
+                                "location_code": '81003',
+                                "expected_receipt_date": data[i]["Expected Receipt Date"],
+                                "description": data[i].Description,
+                                "unit": data[i]["Unit of Measure"],
+                                "qty": qty,
+                                "vendor_no": data[i]["Buy-from Vendor No_"],
+                                "vendor_status": data[i]["Gen_ Bus_ Posting Group"],
+                                "division": data[i].Division,
+                                "item_category_code": data[i]["Item Category Code"],
+                                "product_group_code": data[i]["Product Group Code"],
+                                "status": 'OPEN',
+                                "uuid": this.uuid
+                              },
+                              { headers })
+                              .subscribe(
+                                (val) => {
+                                }, err => {
+                                  
+                                });
+                                });
                                 });
                           }
                         });
@@ -990,10 +1043,8 @@ export class PurchasingorderPage {
                   });
               }
             });
-        },
-        response => {
-        },
-        () => {
+        }, err => {
+          this.doSendToPic()
         });
   }
   doSendToPicPrepare() {

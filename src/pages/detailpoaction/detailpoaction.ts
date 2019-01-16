@@ -318,7 +318,7 @@ export class DetailpoactionPage {
             this.location_master = val['data'];
             this.searchloc = this.location_master
             document.getElementById("myLocations").style.display = "block";
-            document.getElementById("myHeader").style.display = "none";
+            //document.getElementById("myHeader").style.display = "none";
             resolve();
           })
         });
@@ -336,7 +336,7 @@ export class DetailpoactionPage {
   }
   doOffLocations() {
     document.getElementById("myLocations").style.display = "none";
-    document.getElementById("myHeader").style.display = "block";
+    //document.getElementById("myHeader").style.display = "block";
     this.divdesc = '';
   }
   doSelectLoc(locmst) {
@@ -474,6 +474,7 @@ export class DetailpoactionPage {
                           {
                             "receiving_no": this.nextno,
                             "order_no": detailpo.order_no,
+                            "line_no": detailpo.line_no,
                             "batch_no": detailpo.batch_no,
                             "item_no": detailpo.item_no,
                             "location_code": '81003',
@@ -566,6 +567,7 @@ export class DetailpoactionPage {
                           {
                             "receiving_no": this.nextno,
                             "order_no": detailpo.order_no,
+                            "line_no": detailpo.line_no,
                             "batch_no": detailpo.batch_no,
                             "item_no": detailpo.item_no,
                             "location_code": detailpo.location_code,

@@ -373,7 +373,7 @@
         <ion-row>
           <ion-col *ngFor="let foto of photos" col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="foto.img_src == ''" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="foto.img_src == ''" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="foto.img_src != ''" src="{{foto.img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="(foto.img_src == '') || (foto.img_src != '' && qcstatus == 'REJECT')" class="centered" (click)="doCamera(foto)">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -391,7 +391,7 @@
         <ion-row>
           <ion-col col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="photos.length < 1" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="photos.length < 1" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="photos.length > 0" src="{{photos[0].img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="photos.length < 1 && qcstatus == 'OPEN'" class="centered" (click)="doCamera('0')">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -405,7 +405,7 @@
           </ion-col>
           <ion-col col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="photos.length < 2" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="photos.length < 2" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="photos.length > 1" src="{{photos[1].img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="photos.length < 2 && qcstatus == 'OPEN'" class="centered" (click)="doCamera('1')">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -419,7 +419,7 @@
           </ion-col>
           <ion-col col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="photos.length < 3" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="photos.length < 3" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="photos.length > 2" src="{{photos[2].img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="photos.length < 3 && qcstatus == 'OPEN'" class="centered" (click)="doCamera('2')">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -433,7 +433,7 @@
           </ion-col>
           <ion-col col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="photos.length < 4" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="photos.length < 4" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="photos.length > 3" src="{{photos[3].img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="photos.length < 4 && qcstatus == 'OPEN'" class="centered" (click)="doCamera('3')">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -447,7 +447,7 @@
           </ion-col>
           <ion-col col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="photos.length < 5" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="photos.length < 5" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="photos.length > 4" src="{{photos[4].img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="photos.length < 5 && qcstatus == 'OPEN'" class="centered" (click)="doCamera('4')">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -461,7 +461,7 @@
           </ion-col>
           <ion-col col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="photos.length < 6" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="photos.length < 6" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="photos.length > 5" src="{{photos[5].img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="photos.length < 6 && qcstatus == 'OPEN'" class="centered" (click)="doCamera('5')">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -475,7 +475,7 @@
           </ion-col>
           <ion-col col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="photos.length < 7" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="photos.length < 7" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="photos.length > 6" src="{{photos[6].img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="photos.length < 7 && qcstatus == 'OPEN'" class="centered" (click)="doCamera('6')">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -489,7 +489,7 @@
           </ion-col>
           <ion-col col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="photos.length < 8" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="photos.length < 8" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="photos.length > 7" src="{{photos[7].img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="photos.length < 8 && qcstatus == 'OPEN'" class="centered" (click)="doCamera('7')">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -503,7 +503,7 @@
           </ion-col>
           <ion-col col-4 style="padding:0px;margin-bottom:-4px;border:1px solid;border-color:#e3e4e6;">
             <div class="container">
-              <img *ngIf="photos.length < 9" src="http://10.10.10.7/serverapi/img/noimage" style="width:100%;" />
+              <img *ngIf="photos.length < 9" src="http://101.255.60.202/pictureapi/img/noimage" style="width:100%;" />
               <img *ngIf="photos.length > 8" src="{{photos[8].img_src}}" style="width:100%;" imageViewer />
               <div *ngIf="photos.length < 9 && qcstatus == 'OPEN'" class="centered" (click)="doCamera('8')">
                 <ion-icon name="md-add" style="font-size:40px;font-weight:bold;color:#217481;"></ion-icon>
@@ -546,7 +546,7 @@
 <div id="foto" class="modal-foto">
   <div class="container">
     <img *ngIf="viewfoto != ''" src="{{viewfoto}}" style="width:40%;" />
-    <img *ngIf="viewfoto == ''" src="http://10.10.10.7/serverapi/img/noimage" style="width:40%;margin-top:5%;" />
+    <img *ngIf="viewfoto == ''" src="http://101.255.60.202/pictureapi/img/noimage" style="width:40%;margin-top:5%;" />
     <div class="top-right">
       <ion-icon name="md-close" class="close-foto" style="font-size:25px;" (click)="doCloseViewPhoto()"></ion-icon>
     </div>

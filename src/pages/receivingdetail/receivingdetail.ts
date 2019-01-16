@@ -55,13 +55,14 @@ export class ReceivingdetailPage {
   private uuid = '';
   private nextno = '';
   private nextnostaging = '';
+  private nextnostockbalance = '';
   public scannedText: string;
   public buttonText: string;
   public loading: boolean;
   private eventId: number;
   public eventTitle: string;
   private barcodedata: any;
-  private token:any;
+  private token: any;
 
   constructor(
     public navCtrl: NavController,
@@ -612,15 +613,141 @@ export class ReceivingdetailPage {
                         "batch_no": cek.batch_no,
                         "item_no": cek.item_no,
                         "data_entry": date,
-                        "qty": cek.qty,
-                        "qty_qc": parseInt(cek.qty) / 10,
-                        "qty_putaway": cek.qty,
+                        "qty": cek.qty_receiving,
+                        "qty_qc": cek.qty_receiving,
+                        "qty_putaway": cek.qty_receiving,
                         "unit": cek.unit,
                         "staging": cek.staging,
                         "uuid": UUID.UUID()
                       },
                       { headers })
-                      .subscribe();
+                      .subscribe(val => {
+                        this.getNextNoStockBalance().subscribe(val => {
+                          this.nextnostockbalance = val['nextno'];
+                          const headers = new HttpHeaders()
+                            .set("Content-Type", "application/json");
+                          let date = moment().format('YYYY-MM-DD');
+                          this.api.post("table/stock_balance",
+                            {
+                              "id": this.nextnostockbalance,
+                              "receiving_no": cek.receiving_no,
+                              "batch_no": cek.batch_no,
+                              "item_no": cek.item_no,
+                              "qty_in": cek.qty,
+                              "qty_out": 0,
+                              "location": cek.location_code,
+                              "sub_location": cek.staging,
+                              "description": 'Receiving',
+                              "status": 'OPEN',
+                              "datetime": date,
+                              "uuid": UUID.UUID()
+                            },
+                            { headers })
+                            .subscribe(val => {
+
+                            }, err => {
+                              this.api.post("table/stock_balance",
+                                {
+                                  "id": this.nextnostockbalance,
+                                  "receiving_no": cek.receiving_no,
+                                  "batch_no": cek.batch_no,
+                                  "item_no": cek.item_no,
+                                  "qty_in": cek.qty,
+                                  "qty_out": 0,
+                                  "location": cek.location_code,
+                                  "sub_location": cek.staging,
+                                  "description": 'Receiving',
+                                  "status": 'OPEN',
+                                  "datetime": date,
+                                  "uuid": UUID.UUID()
+                                },
+                                { headers })
+                                .subscribe()
+                            })
+                        });
+                      }, err => {
+                        this.api.post("table/staging_in",
+                          {
+                            "staging_no": this.nextnostaging,
+                            "receiving_no": cek.receiving_no,
+                            "doc_no": cek.doc_no,
+                            "order_no": cek.order_no,
+                            "batch_no": cek.batch_no,
+                            "item_no": cek.item_no,
+                            "data_entry": date,
+                            "qty": cek.qty,
+                            "qty_qc": parseInt(cek.qty) / 10,
+                            "qty_putaway": cek.qty,
+                            "unit": cek.unit,
+                            "staging": cek.staging,
+                            "uuid": UUID.UUID()
+                          },
+                          { headers })
+                          .subscribe(val => {
+                            this.getNextNoStockBalance().subscribe(val => {
+                              this.nextnostockbalance = val['nextno'];
+                              const headers = new HttpHeaders()
+                                .set("Content-Type", "application/json");
+                              let date = moment().format('YYYY-MM-DD');
+                              this.api.post("table/stock_balance",
+                                {
+                                  "id": this.nextnostockbalance,
+                                  "receiving_no": cek.receiving_no,
+                                  "batch_no": cek.batch_no,
+                                  "item_no": cek.item_no,
+                                  "qty_in": cek.qty,
+                                  "qty_out": 0,
+                                  "location": cek.location_code,
+                                  "sub_location": cek.staging,
+                                  "description": 'Receiving',
+                                  "status": 'OPEN',
+                                  "datetime": date,
+                                  "uuid": UUID.UUID()
+                                },
+                                { headers })
+                                .subscribe(val => {
+
+                                }, err => {
+                                  this.api.post("table/stock_balance",
+                                    {
+                                      "id": this.nextnostockbalance,
+                                      "receiving_no": cek.receiving_no,
+                                      "batch_no": cek.batch_no,
+                                      "item_no": cek.item_no,
+                                      "qty_in": cek.qty,
+                                      "qty_out": 0,
+                                      "location": cek.location_code,
+                                      "sub_location": cek.staging,
+                                      "description": 'Receiving',
+                                      "status": 'OPEN',
+                                      "datetime": date,
+                                      "uuid": UUID.UUID()
+                                    },
+                                    { headers })
+                                    .subscribe()
+                                })
+                            });
+                          }, err => {
+                            this.api.post("table/staging_in",
+                              {
+                                "staging_no": this.nextnostaging,
+                                "receiving_no": cek.receiving_no,
+                                "doc_no": cek.doc_no,
+                                "order_no": cek.order_no,
+                                "batch_no": cek.batch_no,
+                                "item_no": cek.item_no,
+                                "data_entry": date,
+                                "qty": cek.qty,
+                                "qty_qc": parseInt(cek.qty) / 10,
+                                "qty_putaway": cek.qty,
+                                "unit": cek.unit,
+                                "staging": cek.staging,
+                                "uuid": UUID.UUID()
+                              },
+                              { headers })
+                              .subscribe()
+                          })
+                      });
                   });
                 }
                 else {
@@ -646,31 +773,190 @@ export class ReceivingdetailPage {
                         "uuid": UUID.UUID()
                       },
                       { headers })
-                      .subscribe();
+                      .subscribe(val => {
+                        this.getNextNoStockBalance().subscribe(val => {
+                          this.nextnostockbalance = val['nextno'];
+                          const headers = new HttpHeaders()
+                            .set("Content-Type", "application/json");
+                          let date = moment().format('YYYY-MM-DD');
+                          this.api.post("table/stock_balance",
+                            {
+                              "id": this.nextnostockbalance,
+                              "receiving_no": cek.receiving_no,
+                              "batch_no": cek.batch_no,
+                              "item_no": cek.item_no,
+                              "qty_in": cek.qty,
+                              "qty_out": 0,
+                              "location": cek.location_code,
+                              "sub_location": cek.staging,
+                              "description": 'Receiving',
+                              "status": 'OPEN',
+                              "datetime": date,
+                              "uuid": UUID.UUID()
+                            },
+                            { headers })
+                            .subscribe(val => {
+
+                            }, err => {
+                              this.api.post("table/stock_balance",
+                                {
+                                  "id": this.nextnostockbalance,
+                                  "receiving_no": cek.receiving_no,
+                                  "batch_no": cek.batch_no,
+                                  "item_no": cek.item_no,
+                                  "qty_in": cek.qty,
+                                  "qty_out": 0,
+                                  "location": cek.location_code,
+                                  "sub_location": cek.staging,
+                                  "description": 'Receiving',
+                                  "status": 'OPEN',
+                                  "datetime": date,
+                                  "uuid": UUID.UUID()
+                                },
+                                { headers })
+                                .subscribe()
+                            })
+                        });
+                      }, err => {
+                        this.api.post("table/staging_in",
+                          {
+                            "staging_no": this.nextnostaging,
+                            "receiving_no": cek.receiving_no,
+                            "doc_no": cek.doc_no,
+                            "order_no": cek.order_no,
+                            "batch_no": cek.batch_no,
+                            "item_no": cek.item_no,
+                            "data_entry": date,
+                            "qty": cek.qty,
+                            "qty_qc": cek.qty,
+                            "qty_putaway": cek.qty,
+                            "unit": cek.unit,
+                            "staging": cek.staging,
+                            "uuid": UUID.UUID()
+                          },
+                          { headers })
+                          .subscribe()
+                      });
                   });
                 }
 
               });
 
-            if (this.totaldatachecked == 1) {
-              const headers = new HttpHeaders()
-                .set("Content-Type", "application/json");
+            // if (this.totaldatachecked == 1) {
+            //   const headers = new HttpHeaders()
+            //     .set("Content-Type", "application/json");
 
-              this.api.put("table/purchasing_order",
-                {
-                  "order_no": this.orderno,
-                  "status": 'CLSD'
-                },
-                { headers })
-                .subscribe();
-            }
+            //   this.api.put("table/purchasing_order",
+            //     {
+            //       "order_no": this.orderno,
+            //       "status": 'CLSD'
+            //     },
+            //     { headers })
+            //     .subscribe();
+            // }
+            this.api.get("table/receiving", { params: { filter: 'order_no=' + "'" + this.orderno + "'" + ' AND ' + "status= 'OPEN'" } }).subscribe(val => {
+              let belumreceived = val['data'];
+              if (belumreceived.length == 0) {
+                const headers = new HttpHeaders()
+                  .set("Content-Type", "application/json");
+
+                this.api.put("table/purchasing_order",
+                  {
+                    "order_no": this.orderno,
+                    "status": 'CLSD'
+                  },
+                  { headers })
+                  .subscribe();
+              }
+            });
           }
         }
       ]
     });
     alert.present();
   }
+  getNextNoRCV() {
+    return this.api.get('nextno/receiving/receiving_no')
+  }
+  doPostPartial(detailrcv) {
+    let alert = this.alertCtrl.create({
+      title: 'Confirm Posting Partial',
+      message: 'Do you want to Submit  ' + detailrcv.item_no + ' ?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+
+          }
+        },
+        {
+          text: 'Posting',
+          handler: () => {
+            if (detailrcv.qty_receiving <= detailrcv.qty) {
+              const headers = new HttpHeaders()
+                .set("Content-Type", "application/json");
+              this.api.put("table/receiving",
+                {
+                  "receiving_no": detailrcv.receiving_no,
+                  "status": 'CHECKED'
+                },
+                { headers })
+                .subscribe(val => {
+                  this.getNextNoRCV().subscribe(val => {
+                    this.nextno = val['nextno'];
+                    let uuid = UUID.UUID();
+                    this.uuid = uuid;
+                    let date = moment().format();
+                    const headers = new HttpHeaders()
+                      .set("Content-Type", "application/json");
+                    this.api.post("table/receiving",
+                      {
+                        "receiving_no": this.nextno,
+                        "order_no": detailrcv.order_no,
+                        "batch_no": detailrcv.batch_no,
+                        "line_no": detailrcv.line_no,
+                        "item_no": detailrcv.item_no,
+                        "location_code": detailrcv.location_code,
+                        "expected_receipt_date": detailrcv.expected_receipt_date,
+                        "description": detailrcv.description,
+                        "unit": detailrcv.unit,
+                        "qty": parseInt(detailrcv.qty) - parseInt(detailrcv.qty_receiving),
+                        "qty_receiving": 0,
+                        "vendor_no": detailrcv.vendor_no,
+                        "vendor_status": detailrcv.vendor_status,
+                        "division": detailrcv.division,
+                        "item_category_code": detailrcv.item_category_code,
+                        "product_group_code": detailrcv.product_group_code,
+                        "location": detailrcv.location,
+                        "status": 'OPEN',
+                        "status_location": detailrcv.status_location,
+                        "status_barcode": 'OK',
+                        "pic_location": detailrcv.pic_location,
+                        "pic_barcode": detailrcv.pic_barcode,
+                        "date": date,
+                        "uuid": this.uuid
+                      },
+                      { headers })
+                      .subscribe(val => {
+                        this.getRCV();
+                        this.getRCVChecked();
+                      })
+                  });
+                  this.getRCV();
+                  this.getRCVChecked();
+                });
+            }
+          }
+        }
+      ]
+    })
+    alert.present();
+  }
   getNextNoStaging() {
     return this.api.get('nextno/staging_in/staging_no')
+  }
+  getNextNoStockBalance() {
+    return this.api.get('nextno/stock_balance/id')
   }
 }

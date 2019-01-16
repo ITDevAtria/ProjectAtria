@@ -1,0 +1,120 @@
+<ion-header class="header-menu">
+  <ion-navbar class="header-navbar" style="width:100%;">
+    <div *ngIf="!toggled" class="logo-search" style="text-align:right;height:0px;">
+      <button ion-button clear color="light" (click)="doPrint()">
+        <ion-icon name="md-print" style="font-size:35px;"></ion-icon>
+      </button>
+    </div>
+    <button ion-button clear color="light" (click)="closeModal()">
+      Close
+    </button>
+    <ion-title class="side-title">
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+<ion-content padding class="content-pickingnote">
+  <div id="printarea">
+    <h2 style="text-align: center;font-weight: bold;font-family: Calibri;">PICKING NOTE FOR CUSTOMER</h2>
+    <div padding>
+      <ion-grid *ngFor="let datanas of datacust">
+        <ion-row>
+          <ion-col col-2.5>Reference No</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>{{receiptno}}</ion-col>
+          <ion-col col-2.5>Print Date</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>{{datenow | date:"dd MMMM yyyy"}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col col-2.5>Invoice No</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>0000001</ion-col>
+          <ion-col col-2.5>Print Count</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col col-2.5>Store No</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>{{datanas["Store No_"]}}&nbsp;{{storename}}</ion-col>
+          <ion-col col-2.5>Transaction Date</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>{{datanas["Order Date"] | date:"dd MMMM yyyy"}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col col-2.5>Customer Code</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>{{datanas["Bill-to Customer No_"]}}</ion-col>
+          <ion-col col-2.5>Shipping Date</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>{{datanas["Requested Delivery Date"] | date:"dd MMMM yyyy"}}</ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col col-2.5>Customer Name</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>{{datanas["Bill-to Name"]}}</ion-col>
+          <ion-col col-6></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col col-2.5>Delivery Address</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>{{datanas["Bill-to Address"]}}&nbsp;{{datanas["Bill-to City"]}}</ion-col>
+          <ion-col col-6></ion-col>
+        </ion-row>
+        <ion-row>
+          <ion-col col-2.5>Phone No.</ion-col>
+          <ion-col col-0.5 style="text-align: right;">:</ion-col>
+          <ion-col col-3>{{datanas["Sell-to Phone No_"]}}</ion-col>
+          <ion-col col-6></ion-col>
+        </ion-row>
+      </ion-grid>
+      <ion-grid>
+        <ion-row>
+          <ion-col col-1 style="border:1px solid;font-weight: bold;">Item No</ion-col>
+          <ion-col col-3 style="border:1px solid;font-weight: bold;">Description</ion-col>
+          <ion-col col-1 style="border:1px solid;font-weight: bold;">Qty Unit</ion-col>
+          <ion-col col-1 style="border:1px solid;font-weight: bold;">Qty Part</ion-col>
+          <ion-col col-2 style="border:1px solid;font-weight: bold;">Picking Location</ion-col>
+          <ion-col col-2 style="border:1px solid;font-weight: bold;">Picking Location</ion-col>
+          <ion-col col-2 style="border:1px solid;font-weight: bold;">TO Reservation</ion-col>
+        </ion-row>
+        <div *ngFor="let item of dataitem">
+          <ion-row>
+            <ion-col col-1 style="border:1px solid;font-weight: bold;">{{item["Item No_"]}}</ion-col>
+            <ion-col col-3 style="border:1px solid;font-weight: bold;">{{item["Description"]}}</ion-col>
+            <ion-col col-1 style="border:1px solid;font-weight: bold;">{{item["Quantity"]}}</ion-col>
+            <ion-col col-1 style="border:1px solid;font-weight: bold;"></ion-col>
+            <ion-col col-2 style="border:1px solid;font-weight: bold;">{{item["SJL From"]}}</ion-col>
+            <ion-col col-2 style="border:1px solid;font-weight: bold;"></ion-col>
+            <ion-col col-2 style="border:1px solid;font-weight: bold;">{{toreservation}}</ion-col>
+          </ion-row>
+          <div *ngFor="let part of datapart">
+            <ion-row *ngIf="'B-' + item['Item No_'] == part['Production BOM No_']">
+              <ion-col col-1 style="border:1px solid;text-align: right;">{{part["No_"]}}</ion-col>
+              <ion-col col-3 style="border:1px solid;">{{part["Description"]}}</ion-col>
+              <ion-col col-1 style="border:1px solid;"></ion-col>
+              <ion-col col-1 style="border:1px solid;">{{item["Quantity"]}}</ion-col>
+              <ion-col col-2 style="border:1px solid;">{{item["SJL From"]}}</ion-col>
+              <ion-col col-2 style="border:1px solid;"></ion-col>
+              <ion-col col-2 style="border:1px solid;">{{toreservation}}</ion-col>
+            </ion-row>
+          </div>
+        </div>
+      </ion-grid>
+      <ion-grid style="padding-top:20px;">
+        <ion-row>
+          <ion-col col-4 style="text-align:center;font-weight: bold;">Created By</ion-col>
+          <ion-col col-4 style="text-align:center;font-weight: bold;">Picked By</ion-col>
+          <ion-col col-4 style="text-align:center;font-weight: bold;">Checked By</ion-col>
+        </ion-row>
+      </ion-grid>
+      <ion-grid style="padding-top:50px;">
+          <ion-row>
+            <ion-col col-4 style="text-align:center;font-weight: bold;">(.....................)</ion-col>
+            <ion-col col-4 style="text-align:center;font-weight: bold;">(.....................)</ion-col>
+            <ion-col col-4 style="text-align:center;font-weight: bold;">(.....................)</ion-col>
+          </ion-row>
+        </ion-grid>
+    </div>
+  </div>
+</ion-content>

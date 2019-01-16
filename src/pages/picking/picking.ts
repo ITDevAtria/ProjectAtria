@@ -30,7 +30,7 @@ export class PickingPage {
   private users = [];
   searchrcv: any;
   searchloc: any;
-  searchpicking: any;
+  searchpicking = [];
   halaman = 0;
   totaldata: any;
   totaldatapicking: any;
@@ -131,7 +131,7 @@ export class PickingPage {
           }
         })
     });
-    // this.getPickingSearch();
+    //this.getPickingSearch();
     this.getpicking();
     this.toggled = false;
     this.groupby = ""
@@ -162,7 +162,7 @@ export class PickingPage {
       }
       else {
         this.halaman++;
-        this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", offset: offsetpicking, filter: "Status=0", sort: "[Expected Receipt Date]" + " ASC " } })
+        this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", offset: offsetpicking, filter: "Status=0", sort: "[Expected Receipt Date]" + " DESC " } })
           .subscribe(val => {
             let data = val['data'];
             for (let i = 0; i < data.length; i++) {
@@ -171,11 +171,13 @@ export class PickingPage {
                   this.pickingrelease = val['data'];
                   if (this.pickingrelease.length == 0) {
                     this.listpicking.push(data[i]);
+                    this.searchpicking.push(data[i]);
                     this.totaldatalistpicking = val['count'];
                   }
                   else if (this.pickingrelease.length) {
                     if (this.pickingrelease[0].status == 'OPEN') {
                       this.listpicking.push(data[i]);
+                      this.searchpicking.push(data[i]);
                       this.totaldatalistpicking = val['count'];
                     }
                   }
@@ -189,26 +191,26 @@ export class PickingPage {
       }
     });
   }
-  /*getPickingSearch() {
-    this.api.get("tablenav", { params: { limit: 100, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0", sort: "[Expected Receipt Date]" + " ASC " } })
-    .subscribe(val => {
-      let data = val['data'];
-      for (let i = 0; i < data.length; i++) {
-        this.api.get("table/picking_list", { params: { filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
-          .subscribe(val => {
-            this.pickingreleasesearch = val['data'];
-            if (this.pickingreleasesearch.length == 0) {
-              this.listpickingsearch.push(data[i]);
-              this.totaldatalistpickingsearch = val['count'];
-              this.searchpicking = this.listpickingsearch;
-            }
-            else if (this.pickingreleasesearch.length) {
+  getPickingSearch() {
+    this.api.get("tablenav", { params: { limit: 10000, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0", sort: "[Expected Receipt Date]" + " ASC " } })
+      .subscribe(val => {
+        let data = val['data'];
+        for (let i = 0; i < data.length; i++) {
+          this.api.get("table/picking_list", { params: { filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
+            .subscribe(val => {
+              this.pickingreleasesearch = val['data'];
+              if (this.pickingreleasesearch.length == 0) {
+                this.listpickingsearch.push(data[i]);
+                this.totaldatalistpickingsearch = val['count'];
+                this.searchpicking = this.listpickingsearch;
+              }
+              else if (this.pickingreleasesearch.length) {
 
-            }
-          });
-      }
-    });
-  }*/
+              }
+            });
+        }
+      });
+  }
   /*getSetGroupBy(groupby) {
     this.api.get('table/picking_list', { params: { limit: 30, filter: "status='OPEN'", group: groupby, groupSummary: "sum (qty) as qtysum" } })
       .subscribe(val => {
@@ -288,16 +290,20 @@ export class PickingPage {
   }*/
   getSearchGroupInvoice(ev: any) {
     // set val to the value of the searchbar
-    let val = ev.target.value;
-
+    let value = ev.target.value;
+    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Receipt No_] LIKE '%" + value + "%'", sort: "[Expected Receipt Date]" + " DESC " } })
+      .subscribe(val => {
+        let data = val['data'];
+        console.log(data)
+        if (value && value.trim() != '') {
+          this.listpicking = data.filter(pick => {
+            return pick["Receipt No_"].toLowerCase().indexOf(value.toLowerCase()) > -1;
+          })
+        } else {
+          this.listpicking = this.searchpicking;
+        }
+      });
     // if the value is an empty string don't filter the items
-    if (val && val.trim() != '') {
-      this.listpicking = this.searchpicking.filter(pick => {
-        return pick["Receipt No_"].toLowerCase().indexOf(val.toLowerCase()) > -1;
-      })
-    } else {
-      this.listpicking = this.searchpicking;
-    }
   }
   /*getSearchGroupItems(ev: any) {
     // set val to the value of the searchbar
@@ -544,11 +550,40 @@ export class PickingPage {
                                   "sjl_from": data[i]["SJL From"],
                                   "UOM": data[i].UOM,
                                   "retail_so_no": data[i]["Retail SO No_"],
+                                  "status": 'OPEN',
                                   "uuid": this.uuid
                                 },
                                 { headers })
                                 .subscribe(val => {
+                                  this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Item", filter: "[No_]=" + "'" + data[i]["Item No_"] + "'" } }).subscribe(val => {
+                                    let dataitem = val['data']
+                                    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Production BOM Line", filter: "[Production BOM No_]=" + "'" + dataitem[0]["Production BOM No_"] + "'" } }).subscribe(val => {
+                                      let datapart = val['data']
+                                      for (let j = 0; j < datapart.length; j++) {
+                                        this.api.post("table/picking_list_detail_part",
+                                        {
+                                          "id": data[i]["Receipt No_"] + data[i]["Line No_"],
+                                          "receipt_no": data[i]["Receipt No_"],
+                                          "item_no": data[i]["Item No_"],
+                                          "bom_no": datapart[j]["Production BOM No_"],
+                                          "part_no": datapart[j].No_,
+                                          "line_no": datapart[j]["Line No_"],
+                                          "description": datapart[j].Description,
+                                          "qty": datapart[j].Quantity,
+                                          "location": '81003',
+                                          "sub_location": '',
+                                          "UOM": datapart[j]["Unit of Measure Code"],
+                                          "retail_so_no": data[i]["Retail SO No_"],
+                                          "status" : 'OPEN',
+                                          "uuid": UUID.UUID()
+                                        },
+                                        { headers })
+                                        .subscribe(val => {
 
+                                        });
+                                      }
+                                    });
+                                  })
                                 });
                             }
                           });
@@ -584,6 +619,13 @@ export class PickingPage {
         }
       });
 
+  }
+  doPrint(listpick) {
+    let locationModal = this.modalCtrl.create('PickingnotePage', {
+      receiptno: listpick["Receipt No_"]
+    },
+      { cssClass: "modal-fullscreen" });
+    locationModal.present();
   }
   viewDetail(listpick) {
     this.navCtrl.push('PickingdetailPage', {

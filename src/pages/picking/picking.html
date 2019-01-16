@@ -24,17 +24,17 @@
     <ion-segment-button value="picking">
       Picking
     </ion-segment-button>
-    <ion-segment-button value="history">
+    <!-- <ion-segment-button value="history">
       History
-    </ion-segment-button>
+    </ion-segment-button> -->
   </ion-segment>
   <ion-segment *ngIf="rolegroup == 'STAFF'" [(ngModel)]="pick">
     <ion-segment-button value="picking">
       Picking
     </ion-segment-button>
-    <ion-segment-button value="history">
+    <!-- <ion-segment-button value="history">
       History
-    </ion-segment-button>
+    </ion-segment-button> -->
   </ion-segment>
 
   <div [ngSwitch]="pick">
@@ -92,7 +92,7 @@
                   <ion-icon *ngIf="filter == 'item_no' && sortPUT == 'ASC'" name="md-arrow-dropdown"></ion-icon>
                   <ion-icon *ngIf="filter == 'item_no' && sortPUT == 'DESC'" name="md-arrow-dropup"></ion-icon>
                 </ion-col>
-                <ion-col col-2 class="col-select" (click)="doSortPICK('Store No_')">Store No
+                <ion-col col-1 class="col-select" (click)="doSortPICK('Store No_')">Store No
                   <ion-icon *ngIf="filter == 'qty' && sortPUT == 'ASC'" name="md-arrow-dropdown"></ion-icon>
                   <ion-icon *ngIf="filter == 'qty' && sortPUT == 'DESC'" name="md-arrow-dropup"></ion-icon>
                 </ion-col>
@@ -104,6 +104,8 @@
                 </ion-col>
                 <ion-col col-1 class="col-select" (click)="doSortPICK('SO No_')">SEND
                 </ion-col>
+                <ion-col col-1 class="col-select" (click)="doSortPICK('SO No_')">PRINT
+                </ion-col>
               </ion-row>
             </ion-col>
             <ion-col *ngFor="let listpick of listpicking" col-12>
@@ -111,13 +113,16 @@
                 <ion-col col-2 padding class="col-content" (click)="viewDetail(listpick)">{{listpick["Receipt No_"]}}</ion-col>
                 <ion-col col-2 padding class="col-content" (click)="viewDetail(listpick)">{{listpick["Receipt Date"] | date: 'dd-MM-yyyy'}}</ion-col>
                 <ion-col col-2 padding class="col-content" (click)="viewDetail(listpick)">{{listpick["Expected Receipt Date"] | date: 'dd-MM-yyyy'}}</ion-col>
-                <ion-col col-2 padding class="col-content" (click)="viewDetail(listpick)">{{listpick["Store No_"]}}</ion-col>
+                <ion-col col-1 padding class="col-content" (click)="viewDetail(listpick)">{{listpick["Store No_"]}}</ion-col>
                 <ion-col col-2 padding class="col-content" (click)="viewDetail(listpick)">{{listpick["SO No_"]}}</ion-col>
                 <ion-col col-1 padding class="col-content" (click)="doOpenToPIC(listpick)">
                   <ion-icon name="md-open" style="font-size:30px;color:#217481"></ion-icon>
                 </ion-col>
                 <ion-col col-1 padding class="col-content" (click)="doSendNotificationPic(listpick)">
                   <ion-icon name="md-send" style="font-size:30px;color:#217481"></ion-icon>
+                </ion-col>
+                <ion-col col-1 padding class="col-content" (click)="doPrint(listpick)">
+                  <ion-icon name="md-print" style="font-size:30px;color:#217481"></ion-icon>
                 </ion-col>
               </ion-row>
             </ion-col>

@@ -1,0 +1,24 @@
+page-pickingnote {
+
+}
+@media print {
+    .header-menu {
+        display:none
+    }
+    .header-navbar {
+        display:none
+    }
+    .logo-search {
+        display:none
+    }
+    .side-title {
+        display:none
+    }
+    .scroll-content {
+        overflow-y: hidden;    
+    }
+    .content-pickingnote {
+        margin-top: -70px;
+        height: 105%;
+    }
+  }

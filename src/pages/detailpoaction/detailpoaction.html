@@ -33,9 +33,9 @@
     <ion-segment-button value="detailpoitem">
       Detail Items PO
     </ion-segment-button>
-    <ion-segment-button value="history">
+    <!-- <ion-segment-button value="history">
       History
-    </ion-segment-button>
+    </ion-segment-button> -->
   </ion-segment>
 
   <div [ngSwitch]="detailpo">
@@ -50,17 +50,13 @@
           </ion-avatar>
           <div no-padding>
             <h2>Item No : {{detailpo.item_no}}</h2>
-            <ion-note *ngIf="userid != picbarcode">Location : {{detailpo.location}}</ion-note>
-            <br *ngIf="userid == pic">
-            <ion-note *ngIf="userid == pic">Status Location : {{detailpo.status_location}}</ion-note>
-            <br *ngIf="userid == pic">
-            <ion-note *ngIf="userid == pic">PIC Location : ({{piclokasi}})</ion-note>
-            <br *ngIf="userid == pic">
-            <ion-note *ngIf="userid == pic">Status Barcode : {{detailpo.status_barcode}}</ion-note>
-            <br *ngIf="userid == pic">
-            <ion-note *ngIf="userid == pic">PIC Barcode : ({{picbarcode}})</ion-note>
-            <br *ngIf="userid != picbarcode">
-            <ion-note>Qty : {{detailpo.qty}} {{detailpo.unit}}</ion-note>
+            <div style="color:#4a4a4a" *ngIf="userid != picbarcode">Location : {{detailpo.location}}</div>
+            <div style="color:#4a4a4a" *ngIf="userid == pic">Status Location : {{detailpo.status_location}}</div>
+            <div style="color:#4a4a4a" *ngIf="userid == pic">PIC Location : ({{piclokasi}})</div>
+            <div style="color:#4a4a4a" *ngIf="userid == pic">Status Barcode : {{detailpo.status_barcode}}</div>
+            <div style="color:#4a4a4a" *ngIf="userid == pic">PIC Barcode : ({{picbarcode}})</div>
+            <div style="color:#4a4a4a">Qty : {{detailpo.qty}} {{detailpo.unit}}</div>
+            <div style="color:#4a4a4a">Location : {{detailpo.location}}</div>
             <br>
           </div>
           <button *ngIf="status == 'INP2' && userid == piclokasi && userid != picbarcode"

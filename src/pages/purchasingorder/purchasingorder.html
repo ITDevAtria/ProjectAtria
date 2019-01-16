@@ -27,17 +27,17 @@
     <ion-segment-button value="preparation">
       Preparation
     </ion-segment-button>
-    <ion-segment-button value="history">
+    <!-- <ion-segment-button value="history">
       History
-    </ion-segment-button>
+    </ion-segment-button> -->
   </ion-segment>
   <ion-segment *ngIf="roleid != 'ADMIN'" [(ngModel)]="po">
     <ion-segment-button value="preparation">
       Preparation
     </ion-segment-button>
-    <ion-segment-button value="history">
+    <!-- <ion-segment-button value="history">
       History
-    </ion-segment-button>
+    </ion-segment-button> -->
   </ion-segment>
 
   <div [ngSwitch]="po">
@@ -242,11 +242,9 @@
           </ion-avatar>
           <div no-padding (click)="viewDetailPrepare(prepare)">
             <h2>No Order : {{prepare.order_no}}</h2>
-            <ion-note>{{prepare.expected_receipt_date | date: "dd MMMM yyyy"}}</ion-note>
-            <br>
-            <ion-note>Status Location: {{prepare.status_location}}</ion-note>
-            <br>
-            <ion-note>Status Barcode: {{prepare.staus_barcode}}</ion-note>
+            <div style="color:#4a4a4a;">{{prepare.expected_receipt_date | date: "dd MMMM yyyy"}}</div>
+            <div style="color:#4a4a4a;">Status Location: {{prepare.status_location}}</div>
+            <div style="color:#4a4a4a;">Status Barcode: {{prepare.staus_barcode}}</div>
           </div>
           <button [disabled]="prepare.status_send_pic_lokasi == 'OK' && prepare.status_send_pic_barcode == 'OK'" *ngIf="prepare.pic == userid"
             item-end ion-button clear color="greenlake" (click)="doOpenToPICPrepare(prepare)">

@@ -451,21 +451,21 @@ export class QcoutPage {
     this.getQCResultrejected(myqc);
   }
   getQCResult(myqc) {
-    this.api.get("table/qc_out_result", { params: { limit: 10, filter: 'qc_no=' + "'" + myqc.qc_no + "'" } }).subscribe(val => {
+    this.api.get("table/qc_out_result", { params: { limit: 50, filter: 'qc_no=' + "'" + myqc.qc_no + "'" } }).subscribe(val => {
       this.qcresult = val['data'];
       this.totaldataqcresult = val['count'];
       this.loader.dismiss()
     })
   }
   getQCResultclsd(myqc) {
-    this.api.get("table/qc_out_result", { params: { limit: 10, filter: 'receipt_no=' + "'" + myqc.receipt_no + "'" } }).subscribe(val => {
+    this.api.get("table/qc_out_result", { params: { limit: 50, filter: 'receipt_no=' + "'" + myqc.receipt_no + "'" } }).subscribe(val => {
       this.qcresultclsd = val['data'];
       this.totaldataqcresultclsd = val['count'];
       this.loader.dismiss()
     });
   }
   getQCResultrejected(myqc) {
-    this.api.get("table/qc_out_result_reject", { params: { limit: 10, filter: 'receipt_no=' + "'" + myqc.receipt_no + "'" } }).subscribe(val => {
+    this.api.get("table/qc_out_result_reject", { params: { limit: 50, filter: 'receipt_no=' + "'" + myqc.receipt_no + "'" } }).subscribe(val => {
       this.qcresultrejected = val['data'];
       this.totaldataqcresultrejected = val['count'];
       this.loader.dismiss()
@@ -1047,7 +1047,7 @@ export class QcoutPage {
                     headers: {}
                   }
 
-                  let url = "http://10.10.10.7/serverapi/api/Upload";
+                  let url = "http://101.255.60.202/pictureapi/api/Upload";
                   fileTransfer.upload(this.imageURI, url, options)
                     .then((data) => {
                       loader.dismiss();
@@ -1058,7 +1058,7 @@ export class QcoutPage {
                       this.api.put("table/link_image",
                         {
                           "no": foto.no,
-                          "img_src": 'http://10.10.10.7/serverapi/img/' + this.receiptno + "-" + this.itemno + "-" + foto.param + uuid,
+                          "img_src": 'http://101.255.60.202/pictureapi/img/' + this.receiptno + "-" + this.itemno + "-" + foto.param + uuid,
                           "file_name": this.receiptno + "-" + this.itemno + "-" + foto.param + uuid,
                           "description": datadesc.description,
                           "upload_date": date,
@@ -1428,7 +1428,7 @@ export class QcoutPage {
                   },
                   { headers })
                   .subscribe(val => {
-                    this.api.get("tablenav", { params: { limit: 10, table: "CSB_LIVE$Delivery Management Line", filter: "[Receipt No_]=" + "'" + dm["Receipt No_"] + "'" } })
+                    this.api.get("tablenav", { params: { limit: 50, table: "CSB_LIVE$Delivery Management Line", filter: "[Receipt No_]=" + "'" + dm["Receipt No_"] + "'" } })
                       .subscribe(val => {
                         let data = val['data']
                         for (let i = 0; i < data.length; i++) {
@@ -1439,11 +1439,11 @@ export class QcoutPage {
 
                       })
                     this.datadm = [];
-                    this.api.get("tablenav", { params: { limit: 10, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
+                    this.api.get("tablenav", { params: { limit: 50, table: "CSB_LIVE$Delivery Management Header", filter: "Status=0 AND [Expected Receipt Date] > '2018-01-01'", sort: "[Expected Receipt Date]" + " DESC " } })
                       .subscribe(val => {
                         let data = val['data'];
                         for (let i = 0; i < data.length; i++) {
-                          this.api.get('table/qc_out', { params: { limit: 10, filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
+                          this.api.get('table/qc_out', { params: { limit: 50, filter: "receipt_no=" + "'" + data[i]["Receipt No_"] + "'" } })
                             .subscribe(val => {
                               this.dataqc = val['data'];
                               if (this.dataqc.length == 0) {
@@ -1457,7 +1457,7 @@ export class QcoutPage {
                             });
                         }
                       });
-                    this.api.get('table/qc_out', { params: { limit: 10, filter: "status='OPEN'   AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
+                    this.api.get('table/qc_out', { params: { limit: 50, filter: "status='OPEN'   AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
                       .subscribe(val => {
                         this.quality_control = val['data']
                         let alert = this.alertCtrl.create({

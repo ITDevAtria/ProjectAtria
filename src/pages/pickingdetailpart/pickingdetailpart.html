@@ -44,55 +44,77 @@
         pullingIcon="arrow-dropdown" pullingText="Pull to refresh" refreshingSpinner="circles" refreshingText="Refreshing..."
       </ion-refresher-content>
     </ion-refresher>
-    <ion-list class="content-list-menu" *ngSwitchCase="'pickingdetailitem'">
+    <div id="options" style="border:1px solid;border-color:#dedede;">
       <ion-item>
-        <ion-label>Sort By</ion-label>
-        <ion-select [(ngModel)]="sort">
-          <ion-option value="sub_location">Lokasi</ion-option>
-          <ion-option value="item_no">Item No</ion-option>
+        <ion-label>Group By </ion-label>
+        <ion-select [(ngModel)]="groupby" (ionChange)="getSetGroupBy(groupby)">
+          <ion-option value="default">Default</ion-option>
+          <ion-option value="item">Item No</ion-option>
+          <ion-option value="part">Part No</ion-option>
+          <ion-option value="location">Location</ion-option>
         </ion-select>
       </ion-item>
-      <ion-card *ngFor="let picking of picking_detail">
-        <ion-item text-wrap>
-          <h3 style="font-weight:bold;padding-bottom:5px;">RECEIPT NO - {{picking.receipt_no}}</h3>
-          <p>Item No : {{picking.item_no}}</p>
-          <p>Description : {{picking.description}}</p>
-        </ion-item>
-        <ion-row (click)="dodetailpicking(picking)" style="border-top:1px solid;border-color:#dedede;background: #dedede;">
-          <ion-col style="text-align: center;">
-            <ion-icon style="color:#217481;font-size: 20px;" name="ios-arrow-down"></ion-icon>
-          </ion-col>
-        </ion-row>
-        <div *ngIf="detailpicking && picking.item_no == pickinglist" style="border-top:1px solid;border-color:#dedede;background:#ffffff;">
-          <div padding style="font-weight:bold;">
-            Detail Part
+    </div>
+    <ion-list class="content-list-menu" *ngSwitchCase="'pickingdetailitem'">
+      <div *ngIf="groupby == 'default'">
+        <ion-card *ngFor="let picking of picking_detail">
+          <ion-item text-wrap>
+            <h3 style="font-weight:bold;padding-bottom:5px;">RECEIPT NO - {{picking.receipt_no}}</h3>
+            <p>Item No : {{picking.item_no}}</p>
+            <p>Description : {{picking.description}}</p>
+          </ion-item>
+          <ion-row (click)="dodetailpicking(picking)" style="border-top:1px solid;border-color:#dedede;background: #dedede;">
+            <ion-col style="text-align: center;">
+              <ion-icon style="color:#217481;font-size: 20px;" name="ios-arrow-down"></ion-icon>
+            </ion-col>
+          </ion-row>
+          <div *ngIf="detailpicking && picking.item_no == pickinglist" style="border-top:1px solid;border-color:#dedede;background:#ffffff;">
+            <div padding style="font-weight:bold;">
+              Detail Part
+            </div>
+            <ion-grid>
+              <ion-row *ngIf="detailpicking && picking.item_no == pickinglist">
+                <ion-col col-12 style="border-top:1px solid;border-color:#dedede;">
+                  <ion-row>
+                    <ion-col>Line No</ion-col>
+                    <ion-col>Part No</ion-col>
+                    <ion-col>Description</ion-col>
+                    <ion-col>Unit</ion-col>
+                    <ion-col>Location</ion-col>
+                    <ion-col>Sub Location</ion-col>
+                    <ion-col>Tools</ion-col>
+                  </ion-row>
+                </ion-col>
+                <ion-col *ngFor="let result of pickingresult" col-12 style="border-top:1px solid;border-color:#dedede;">
+                  <ion-row>
+                    <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result.line_no}}</ion-col>
+                    <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result.part_no}}</ion-col>
+                    <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result.description}}</ion-col>
+                    <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result.UOM}}</ion-col>
+                    <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result.location}}</ion-col>
+                    <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result.sub_location}}</ion-col>
+                    <ion-col class="mouse-hover" style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede" (click)="doPicking(result)">
+                      <i class="fas fa-dolly imgfa" style="font-size:25px;color:#217481;"></i>
+                    </ion-col>
+                  </ion-row>
+                </ion-col>
+              </ion-row>
+            </ion-grid>
           </div>
-          <ion-grid>
-            <ion-row *ngIf="detailpicking && picking.item_no == pickinglist">
-              <ion-col col-12 style="border-top:1px solid;border-color:#dedede;">
-                <ion-row>
-                  <ion-col>Line No</ion-col>
-                  <ion-col>Part No</ion-col>
-                  <ion-col>Description</ion-col>
-                  <ion-col>Unit</ion-col>
-                  <ion-col>Tools</ion-col>
-                </ion-row>
-              </ion-col>
-              <ion-col *ngFor="let result of pickingresult" col-12 style="border-top:1px solid;border-color:#dedede;">
-                <ion-row>
-                  <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result["Line No_"]}}</ion-col>
-                  <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result["No_"]}}</ion-col>
-                  <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result.Description}}</ion-col>
-                  <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">{{result["Unit of Measure Code"]}}</ion-col>
-                  <ion-col style="border-right:1px solid;border-top:0px;border-left:0px;border-color:#dedede">
-                    <i class="fas fa-dolly imgfa" style="font-size:25px;color:#217481;"></i>
-                  </ion-col>
-                </ion-row>
-              </ion-col>
-            </ion-row>
-          </ion-grid>
-        </div>
-      </ion-card>
+        </ion-card>
+      </div>
+      <div *ngIf="groupby == 'item'">
+        <ion-item *ngFor="let picking of picking_detail" (click)="getDetailGroupByItem()">
+          Item No : {{picking.item_no}}
+          <ion-note style="color:red" item-end>{{picking.qtysum}}</ion-note>
+        </ion-item>
+      </div>
+      <div *ngIf="groupby == 'location'">
+        <ion-item *ngFor="let picking of picking_detail" (click)="getDetailGroupByLocation()">
+          Location : {{picking.location_position}}
+          <ion-note style="color:red" item-end>{{picking.qtysum}}</ion-note>
+        </ion-item>
+      </div>
     </ion-list>
     <ion-list *ngSwitchCase="'history'">
       <ion-item>
