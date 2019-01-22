@@ -2,10 +2,10 @@ import { Component } from '@angular/core';
 import { Events, LoadingController, ActionSheetController, Platform, ModalController, MenuController, IonicPage, NavController, ToastController, NavParams, Refresher } from 'ionic-angular';
 import { ApiProvider } from '../../providers/api/api';
 import { AlertController } from 'ionic-angular';
-import { HttpHeaders } from "@angular/common/http";
 import moment from 'moment';
 import { UUID } from 'angular2-uuid';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 @IonicPage()
 @Component({
@@ -14,6 +14,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 })
 export class TransferorderdetailPage {
   myFormModal: FormGroup;
+  myFormModalPic: FormGroup;
   halamantodetail = 0;
   searchtodetail: any;
   private transferorderdetail = [];
@@ -22,7 +23,8 @@ export class TransferorderdetailPage {
   totaldatatodetail: any;
   detailto: string;
   public tono: any;
-  public locationcode: any;
+  public from: any;
+  public to: any;
   public transferdate: any;
   public status: any;
   private receivingchecked = [];
@@ -44,22 +46,28 @@ export class TransferorderdetailPage {
     public platform: Platform,
     public formBuilder: FormBuilder,
     public modalCtrl: ModalController,
+    private http: HttpClient,
     public alertCtrl: AlertController) {
     this.myFormModal = formBuilder.group({
       location: ['', Validators.compose([Validators.required])],
     })
+    this.myFormModalPic = formBuilder.group({
+      pic: ['', Validators.compose([Validators.required])],
+    })
     this.detailto = 'detailtoitem'
-    this.getTODetail();
     this.tono = this.navParams.get('tono')
-    this.locationcode = this.navParams.get('locationcode')
+    this.from = this.navParams.get('from')
+    this.to = this.navParams.get('to')
     this.transferdate = this.navParams.get('transferdate')
     this.status = this.navParams.get('status')
     this.getRCVChecked();
+    this.getTODetail();
   }
   doAddTODetail(detailtoitem) {
     this.navCtrl.push('TransferorderdetailaddPage', {
       tono: this.tono,
-      locationcode: this.locationcode,
+      from: this.from,
+      to: this.to,
       transferdate: this.transferdate
     });
   }
@@ -73,7 +81,7 @@ export class TransferorderdetailPage {
         this.halamantodetail++;
         this.api.get('table/transfer_order_detail', {
           params: {
-            limit: 30, offset: offsetprepare, filter: "status='OPEN'"
+            limit: 30, offset: offsetprepare, filter: "status='OPEN' AND to_no=" + "'" + this.tono + "'"
           }
         })
           .subscribe(val => {
@@ -125,7 +133,7 @@ export class TransferorderdetailPage {
     })
   }
   doRefreshTODetail(refresher) {
-    this.api.get("table/transfer_order_detail", { params: { limit: 30, filter: "status='OPEN'" } }).subscribe(val => {
+    this.api.get("table/transfer_order_detail", { params: { limit: 30, filter: "status='OPEN' AND to_no=" + "'" + this.tono + "'" } }).subscribe(val => {
       this.transferorderdetail = val['data'];
       this.totaldatatodetail = val['count'];
       this.searchtodetail = this.transferorderdetail;
@@ -172,7 +180,7 @@ export class TransferorderdetailPage {
                 },
                 { headers })
                 .subscribe(val => {
-                  this.api.get("table/transfer_order_detail", { params: { limit: 30, filter: "status='OPEN'" } }).subscribe(val => {
+                  this.api.get("table/transfer_order_detail", { params: { limit: 30, filter: "status='OPEN' AND to_no=" + "'" + this.tono + "'" } }).subscribe(val => {
                     this.transferorderdetail = val['data'];
                     this.getRCVChecked();
                   });
@@ -186,13 +194,13 @@ export class TransferorderdetailPage {
                       },
                       { headers })
                       .subscribe(val => {
-                        this.api.get("table/transfer_order_detail", { params: { limit: 30, filter: "status='OPEN'" } }).subscribe(val => {
+                        this.api.get("table/transfer_order_detail", { params: { limit: 30, filter: "status='OPEN' AND to_no=" + "'" + this.tono + "'" } }).subscribe(val => {
                           this.transferorderdetail = val['data'];
                         });
                         this.getRCVChecked();
                       });
                   }
-                  this.api.get("table/transfer_order_detail", { params: { limit: 30, filter: "status='OPEN'" } }).subscribe(val => {
+                  this.api.get("table/transfer_order_detail", { params: { limit: 30, filter: "status='OPEN' AND to_no=" + "'" + this.tono + "'" } }).subscribe(val => {
                     this.transferorderdetail = val['data'];
                   });
                 });

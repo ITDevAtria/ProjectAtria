@@ -17,8 +17,12 @@
       <ion-input formControlName="tono" disabled="true" type="text"></ion-input>
     </ion-item>
     <ion-item class="item-input" no-lines style="font-size:15px;">
-      <ion-label floating>Location Code</ion-label>
-      <ion-input formControlName="locationcode" disabled="true" type="text"></ion-input>
+      <ion-label floating>From Location</ion-label>
+      <ion-input formControlName="from" disabled="true" type="text"></ion-input>
+    </ion-item>
+    <ion-item class="item-input" no-lines style="font-size:15px;">
+      <ion-label floating>To Location</ion-label>
+      <ion-input formControlName="to" disabled="true" type="text"></ion-input>
     </ion-item>
     <ion-item class="item-input" no-lines style="font-size:15px;">
         <ion-label floating>Transfer Date</ion-label>
@@ -26,8 +30,8 @@
       </ion-item>
     <ion-item class="item-input" style="font-size:15px;">
       <ion-label floating>Item No</ion-label>
-      <ion-select formControlName="itemno">
-        <ion-option *ngFor="let item of items" value="{{item.item_no}}" (ionChange)="onChange(item)">{{item.item_no}} {{item.description}}</ion-option>
+      <ion-select formControlName="itemno" >
+        <ion-option *ngFor="let item of items" value="{{item.item_no}}" (ionSelect)="onChange(item)">{{item.item_no}} {{item.description}}</ion-option>
       </ion-select>
     </ion-item>
     <ion-item class="item-input" no-lines style="font-size:15px;">

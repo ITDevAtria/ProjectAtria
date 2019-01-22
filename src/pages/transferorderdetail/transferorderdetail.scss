@@ -1,4 +1,25 @@
 page-transferorderdetail {
+    .row-content {
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+        border-color: #9e9fa1;
+        background: #ffffff;
+    }
+    .row-content-list {
+        background: transparent;
+        color: #000000;
+    }
+    .row-content-list:hover {
+        background: #b7c400;
+        color: #000000;
+        cursor: pointer;
+    }
+    .col-content {
+        background:transparent;
+        color:#000000;
+        border:0px;
+        text-align:left;
+    }
     .content-location {
         margin-top:-70px;
     }

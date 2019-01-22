@@ -12,17 +12,23 @@
 </ion-header>
 <ion-content class="content-menu" padding>
   <form [formGroup]="myForm">
-    <ion-item class="item-input" style="font-size:15px;">
+    <!-- <ion-item class="item-input" style="font-size:15px;">
       <ion-label floating>Tipe TO</ion-label>
       <ion-select formControlName="tipe" (ionChange)="doGetOrderNo()">
         <ion-option value="TO">Transfer Order</ion-option>
         <ion-option value="TD">Transfer Display</ion-option>
       </ion-select>
+    </ion-item> -->
+    <ion-item class="item-input" style="font-size:15px;">
+      <ion-label floating>From</ion-label>
+      <ion-select formControlName="from" (ionChange)="doGetOrderNo()">
+        <ion-option *ngFor="let loc of location" value="{{loc.Code}}">{{loc.Code}} {{loc.Name}}</ion-option>
+      </ion-select>
     </ion-item>
     <ion-item class="item-input" style="font-size:15px;">
-      <ion-label floating>Location Code</ion-label>
-      <ion-select [disabled]="!myForm.value.tipe" formControlName="locationcode" (ionChange)="doGetOrderNo()">
-        <ion-option *ngFor="let loc of location" value="{{loc.location_code}}">{{loc.location_code}} {{loc.location_name}}</ion-option>
+      <ion-label floating>TO</ion-label>
+      <ion-select formControlName="to">
+        <ion-option *ngFor="let loc of location" value="{{loc.Code}}">{{loc.Code}} {{loc.Name}}</ion-option>
       </ion-select>
     </ion-item>
     <ion-item class="item-input" no-lines style="font-size:15px;">

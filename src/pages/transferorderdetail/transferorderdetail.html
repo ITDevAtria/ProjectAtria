@@ -29,7 +29,7 @@
       pullingIcon="arrow-dropdown" pullingText="Pull to refresh" refreshingSpinner="circles" refreshingText="Refreshing..."
     </ion-refresher-content>
   </ion-refresher>
-  <ion-segment [(ngModel)]="detailto">
+  <ion-segment *ngIf="status == 'CLS1'" [(ngModel)]="detailto">
     <ion-segment-button value="detailtoitem">
       Detail Items TO
     </ion-segment-button>
@@ -38,25 +38,30 @@
     </ion-segment-button>
   </ion-segment>
 
+  <ion-segment *ngIf="status != 'CLS1'" [(ngModel)]="detailto">
+    <ion-segment-button value="detailtoitem">
+      Detail Items TO
+    </ion-segment-button>
+  </ion-segment>
+
   <div [ngSwitch]="detailto">
-    <div>
-      <ion-item no-lines class="toolbar-scroll">Showing {{totaldata}} entries</ion-item>
-    </div>
     <ion-list class="content-list-menu" *ngSwitchCase="'detailtoitem'">
-      <ion-item class="content-data-item" *ngFor="let detailto of transferorderdetail">
-        <ion-avatar item-start>
-          <img src="assets/imgs/noimage.jpg" alt="">
-        </ion-avatar>
-        <div no-padding>
-          <h2>No TO : {{detailto.to_no}}</h2>
-          <p>No Item : {{detailto.item_no}}</p>
-          <ion-note>Qty : {{detailto.qty}} | Qty Receiving: {{detailto.qty_receiving}}</ion-note>
-          <br/>
-        </div>
-        <button *ngIf="status == 'INPG'" item-end ion-button clear color="greenlake" (click)="doReceiving(detailto)">
-          <ion-icon name="md-open" style="font-size:30px;"></ion-icon>
-        </button>
-      </ion-item>
+      <ion-row class="row-content">
+        <ion-col col-3 padding class="col-content">No TO</ion-col>
+        <ion-col col-2 padding class="col-content">No Item</ion-col>
+        <ion-col col-4 padding class="col-content">Description</ion-col>
+        <ion-col col-2 padding class="col-content">Qty</ion-col>
+        <ion-col col-1 padding class="col-content" *ngIf="status == 'CLS1'" >Receiving</ion-col>
+      </ion-row>
+      <ion-row class="row-content-list" *ngFor="let detailto of transferorderdetail">
+        <ion-col col-3 padding class="col-content">{{detailto.to_no}}</ion-col>
+        <ion-col col-2 padding class="col-content">{{detailto.item_no}}</ion-col>
+        <ion-col col-4 padding class="col-content">{{detailto.description}}</ion-col>
+        <ion-col col-2 padding class="col-content">{{detailto.qty}}</ion-col>
+        <ion-col col-1 padding class="col-content" *ngIf="status == 'CLS1'" (click)="doReceiving(detailto)">
+          <ion-icon name="md-open" style="font-size:30px;color:#217481"></ion-icon>
+        </ion-col>
+      </ion-row>
     </ion-list>
     <ion-list *ngSwitchCase="'receivingsubmit'">
       <ion-slides>

@@ -51,73 +51,37 @@ export class TransferorderaddPage {
     public storage: Storage
   ) {
     this.myForm = fb.group({
-      tipe: ['', Validators.compose([Validators.required])],
-      locationcode: ['', Validators.compose([Validators.required])],
+      from: ['', Validators.compose([Validators.required])],
+      to: ['', Validators.compose([Validators.required])],
       orderno: ['', Validators.compose([Validators.required])],
       transferdate: ['', Validators.compose([Validators.required])],
       description: ['', Validators.compose([Validators.required])],
     })
-    this.getLocation();
-    this.myForm.get('locationcode').setValue('81003')
+    this.doGetLocation()
+  }
+  doGetLocation() {
+    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Location", sort: "[Code]" + " ASC " } })
+      .subscribe(val => {
+        this.location = val['data']
+      });
   }
   doGetOrderNo() {
-    if (this.myForm.value.tipe == 'TO') {
-      this.api.get('table/transfer_order_to', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.locationcode + "'" } }).subscribe(val => {
-        this.to = val['data'];
-        if (this.to.length != 0) {
-          this.myForm.get('orderno').setValue(this.to[0].code + (this.to[0].last_no_used + 1))
-          this.myForm.get('description').setValue(this.to[0].description)
-          console.log(this.to)
-        }
-        else {
-          let alert = this.alertCtrl.create({
-            title: 'Error',
-            subTitle: 'Data tidak ada',
-            buttons: ['OK']
-          });
-          alert.present();
-        }
-      });
-    }
-    else {
-      this.api.get('table/transfer_order_td', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.locationcode + "'" } }).subscribe(val => {
-        this.td = val['data'];
-        if (this.td.length != 0) {
-          this.myForm.get('orderno').setValue(this.td[0].code + (this.td[0].last_no_used + 1))
-          this.myForm.get('description').setValue(this.td[0].description)
-          console.log(this.td)
-        }
-        else {
-          let alert = this.alertCtrl.create({
-            title: 'Error',
-            subTitle: 'Data tidak ada',
-            buttons: ['OK']
-          });
-          alert.present();
-        }
-      });
-    }
-  }
-  ionViewCanEnter() {
-    this.storage.get('token').then((val) => {
-      this.token = val;
-      if (this.token != null) {
-        return true;
+    this.api.get('table/transfer_order_request', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.from + "'" } }).subscribe(val => {
+      this.to = val['data'];
+      if (this.to.length != 0) {
+        this.myForm.get('orderno').setValue(this.to[0].code + (this.to[0].last_no_used + 1))
+        this.myForm.get('description').setValue(this.to[0].description)
+        console.log(this.to)
       }
       else {
-        return false;
+        let alert = this.alertCtrl.create({
+          title: 'Error',
+          subTitle: 'Data tidak ada',
+          buttons: ['OK']
+        });
+        alert.present();
       }
     });
-  }
-  ionViewDidLoad() {
-  }
-  getLocation() {
-    this.api.get('table/location', { params: { limit: 100 } }).subscribe(val => {
-      this.location = val['data'];
-    });
-  }
-  closeModal() {
-    this.viewCtrl.dismiss();
   }
   insertTO() {
     let uuid = UUID.UUID();
@@ -129,7 +93,8 @@ export class TransferorderaddPage {
     this.api.post("table/transfer_order",
       {
         "to_no": this.myForm.value.orderno,
-        "location_code": this.myForm.value.locationcode,
+        "from_location": this.myForm.value.from,
+        "to_location": this.myForm.value.to,
         "transfer_date": this.myForm.value.transferdate,
         "description": this.myForm.value.description,
         "status": 'OPEN',
@@ -139,44 +104,23 @@ export class TransferorderaddPage {
       { headers })
       .subscribe(
         (val) => {
-          if (this.myForm.value.tipe == 'TO') {
-            this.api.get('table/transfer_order_to', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.locationcode + "'" } }).subscribe(val => {
-              this.to = val['data'];
-              const headers = new HttpHeaders()
-                .set("Content-Type", "application/json");
-              let date = moment().format('YYYY-MM-DD')
-              this.api.put("table/transfer_order_to",
-                {
-                  "location_code": this.myForm.value.locationcode,
-                  "last_date_used": date,
-                  "last_no_used": this.to[0].last_no_used + 1
-                },
-                { headers })
-                .subscribe((val) => {
-                  console.log('to sukses')
-                  this.myForm.reset()
-                })
-            });
-          }
-          else {
-            this.api.get('table/transfer_order_td', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.locationcode + "'" } }).subscribe(val => {
-              this.td = val['data'];
-              const headers = new HttpHeaders()
-                .set("Content-Type", "application/json");
-              let date = moment().format('YYYY-MM-DD')
-              this.api.put("table/transfer_order_td",
-                {
-                  "location_code": this.myForm.value.locationcode,
-                  "last_date_used": date,
-                  "last_no_used": this.td[0].last_no_used + 1
-                },
-                { headers })
-                .subscribe((val => {
-                  console.log('td sukses')
-                  this.myForm.reset()
-                }))
-            });
-          }
+          this.api.get('table/transfer_order_request', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.from + "'" } }).subscribe(val => {
+            this.to = val['data'];
+            const headers = new HttpHeaders()
+              .set("Content-Type", "application/json");
+            let date = moment().format('YYYY-MM-DD')
+            this.api.put("table/transfer_order_request",
+              {
+                "location_code": this.myForm.value.locationcode,
+                "last_date_used": date,
+                "last_no_used": this.to[0].last_no_used + 1
+              },
+              { headers })
+              .subscribe((val) => {
+                console.log('to sukses')
+                this.myForm.reset()
+              })
+          });
           let alert = this.alertCtrl.create({
             title: 'Sukses',
             subTitle: 'Insert TO Sukses',
@@ -192,4 +136,5 @@ export class TransferorderaddPage {
 
         });
   }
+
 }

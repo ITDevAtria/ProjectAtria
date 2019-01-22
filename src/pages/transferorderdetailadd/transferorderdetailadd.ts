@@ -21,7 +21,8 @@ export class TransferorderdetailaddPage {
   private itemdesc = '';
   private itemdiv = '';
   private tono = '';
-  private locationcode = '';
+  private from = '';
+  private to = '';
   private transferdate = '';
   private uuid = '';
   private uuid2 = '';
@@ -40,7 +41,8 @@ export class TransferorderdetailaddPage {
   ) {
     this.myForm = fb.group({
       tono: ['', Validators.compose([Validators.required])],
-      locationcode: ['', Validators.compose([Validators.required])],
+      from: ['', Validators.compose([Validators.required])],
+      to: ['', Validators.compose([Validators.required])],
       transferdate: ['', Validators.compose([Validators.required])],
       itemno: ['', Validators.compose([Validators.required])],
       qty: ['', Validators.compose([Validators.required])],
@@ -48,10 +50,12 @@ export class TransferorderdetailaddPage {
     })
     this.getItems();
     this.tono = navParams.get('tono');
-    this.locationcode = navParams.get('locationcode');
+    this.from = navParams.get('from');
+    this.to = navParams.get('to');
     this.transferdate = navParams.get('transferdate');
     this.myForm.get('tono').setValue(this.tono);
-    this.myForm.get('locationcode').setValue(this.locationcode);
+    this.myForm.get('from').setValue(this.from);
+    this.myForm.get('to').setValue(this.to);
     this.myForm.get('transferdate').setValue(this.transferdate);
   }
   ionViewCanEnter() {
@@ -66,7 +70,7 @@ export class TransferorderdetailaddPage {
     });
   }
   getItems() {
-    this.api.get('table/items', { params: { limit: 100 } }).subscribe(val => {
+    this.api.get('table/items', { params: { limit: 1000 } }).subscribe(val => {
       this.items = val['data'];
     });
   }
@@ -81,48 +85,101 @@ export class TransferorderdetailaddPage {
     this.item = item;
     this.itemdesc = item.description;
     this.itemdiv = item.division_code;
+    console.log(item, this.itemdesc)
   }
   insertTODetail() {
     this.getNextNo().subscribe(val => {
       this.nextno = val['nextno'];
       let uuid = UUID.UUID();
       this.uuid = uuid;
-      const headers = new HttpHeaders()
-        .set("Content-Type", "application/json");
-      this.api.post("table/transfer_order_detail",
-        {
-          "to_detail_no": this.nextno,
-          "to_no": this.tono,
-          "item_no": this.myForm.value.itemno,
-          "division": this.itemdiv,
-          "date" : moment().format('YYYY-MM-DD'),
-          "receipt_date": this.transferdate,
-          "location_previous_code": '81003',
-          "location_current_code": this.locationcode,
-          "qty": this.myForm.value.qty,
-          "qty_receiving": 0,
-          "unit": this.myForm.value.unit,
-          "status": 'OPEN',
-          "uuid": this.uuid
-        },
-        { headers })
-        .subscribe(
-          (val) => {
-            this.myForm.reset()
-            let alert = this.alertCtrl.create({
-              title: 'Sukses',
-              subTitle: 'Insert Detail TO Sukses',
-              buttons: ['OK']
-            });
-            alert.present();
-            this.viewCtrl.dismiss();
-          },
-          response => {
+      console.log(this.tono)
+      this.api.get("table/transfer_order_detail", { params: { filter: "to_no=" + "'" + this.tono + "'", sort: 'line_no DESC' } })
+        .subscribe(val => {
+          let data = val['data']
+          if (data.length != 0) {
+            console.log(data)
+            var lineno = parseInt(data[0].line_no) + 10000
+            const headers = new HttpHeaders()
+              .set("Content-Type", "application/json");
+            this.api.post("table/transfer_order_detail",
+              {
+                "to_detail_no": this.nextno,
+                "to_no": this.tono,
+                "item_no": this.myForm.value.itemno,
+                "description": this.itemdesc,
+                "line_no": lineno,
+                "division": this.itemdiv,
+                "date": moment().format('YYYY-MM-DD'),
+                "receipt_date": this.transferdate,
+                "location_previous_code": this.from,
+                "location_current_code": this.to,
+                "qty": this.myForm.value.qty,
+                "qty_receiving": 0,
+                "unit": this.myForm.value.unit,
+                "status": 'OPEN',
+                "uuid": this.uuid
+              },
+              { headers })
+              .subscribe(
+                (val) => {
+                  this.myForm.reset()
+                  let alert = this.alertCtrl.create({
+                    title: 'Sukses',
+                    subTitle: 'Insert Detail TO Sukses',
+                    buttons: ['OK']
+                  });
+                  alert.present();
+                  this.viewCtrl.dismiss();
+                },
+                response => {
 
-          },
-          () => {
+                },
+                () => {
 
-          });
+                });
+          }
+          else {
+            console.log(data)
+            const headers = new HttpHeaders()
+              .set("Content-Type", "application/json");
+            this.api.post("table/transfer_order_detail",
+              {
+                "to_detail_no": this.nextno,
+                "to_no": this.tono,
+                "item_no": this.myForm.value.itemno,
+                "description": this.itemdesc,
+                "line_no": '10000',
+                "division": this.itemdiv,
+                "date": moment().format('YYYY-MM-DD'),
+                "receipt_date": this.transferdate,
+                "location_previous_code": this.from,
+                "location_current_code": this.to,
+                "qty": this.myForm.value.qty,
+                "qty_receiving": 0,
+                "unit": this.myForm.value.unit,
+                "status": 'OPEN',
+                "uuid": this.uuid
+              },
+              { headers })
+              .subscribe(
+                (val) => {
+                  this.myForm.reset()
+                  let alert = this.alertCtrl.create({
+                    title: 'Sukses',
+                    subTitle: 'Insert Detail TO Sukses',
+                    buttons: ['OK']
+                  });
+                  alert.present();
+                  this.viewCtrl.dismiss();
+                },
+                response => {
+
+                },
+                () => {
+
+                });
+          }
+        });
     });
   }
   getNextNo() {
