@@ -16,6 +16,7 @@ export class HomePage {
   public role = [];
   public rolearea = '';
   public rolegroup = '';
+  public rolecab = '';
   public width: any;
   public height: any;
   public loader: any;
@@ -53,6 +54,7 @@ export class HomePage {
           if (this.role.length != 0) {
             this.rolearea = this.role[0].id_area
             this.rolegroup = this.role[0].id_group
+            this.rolecab = this.role[0].id_cab
           }
         })
     });
@@ -75,7 +77,9 @@ export class HomePage {
     this.navCtrl.push('PurchasingorderPage');
   }
   doReceiving() {
-    this.navCtrl.push('ReceivingPage');
+    this.navCtrl.push('ReceivingPage', {
+      rolecab: this.rolecab
+    });
   }
   doQcIn() {
     this.navCtrl.push('QcinPage');

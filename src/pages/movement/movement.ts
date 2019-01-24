@@ -95,131 +95,181 @@ export class MovementPage {
   ionViewDidLoad() {
   }
   doOpenQty() {
+    let rackno = this.myForm.value.rackno
     let barcodeno = this.myForm.value.barcodeno
     var batchno = barcodeno.substring(0, 6);
     var itemno = barcodeno.substring(6, 14);
-    this.api.get('table/putaway', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + ' AND ' + "item_no=" + "'" + itemno + "'" + ' AND ' + "status='OPEN'" } })
-      .subscribe(val => {
-        this.putawaylist = val['data'];
-        if (this.putawaylist.length) {
-          let alert = this.alertCtrl.create({
-            title: 'Qty',
-            inputs: [
-              {
-                name: 'qty',
-                placeholder: 'Qty'
-              }
-            ],
-            buttons: [
-              {
-                text: 'Cancel',
-                role: 'cancel',
-                handler: data => {
-
+    if (barcodeno == '') {
+      let alert = this.alertCtrl.create({
+        title: 'Error ',
+        subTitle: 'Rack Number Must Be Fill',
+        buttons: ['OK']
+      });
+      alert.present();
+    }
+    else {
+      this.api.get('table/stock_balance', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + ' AND ' + "item_no=" + "'" + itemno + "'" + ' AND ' + "status='OPEN' AND sub_location=" + "'" + rackno + "' AND description= 'Putaway'" } })
+        .subscribe(val => {
+          this.putawaylist = val['data'];
+          if (this.putawaylist.length) {
+            let alert = this.alertCtrl.create({
+              title: 'Qty',
+              inputs: [
+                {
+                  name: 'qty',
+                  placeholder: 'Qty'
                 }
-              },
-              {
-                text: 'OK',
-                handler: data => {
-                  if (data.qty > this.putawaylist[0].qty) {
-                    let alert = this.alertCtrl.create({
-                      title: 'Error ',
-                      subTitle: 'Qty Input Greater than Qty Stock',
-                      buttons: ['OK']
-                    });
-                    alert.present();
+              ],
+              buttons: [
+                {
+                  text: 'Cancel',
+                  role: 'cancel',
+                  handler: data => {
+
                   }
-                  else {
-                    this.api.get('table/movement_temp', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + ' AND ' + "item_no=" + "'" + itemno + "'" } })
-                      .subscribe(val => {
-                        this.getmovementlist = val['data'];
-                        if (this.getmovementlist.length) {
-                          const headers = new HttpHeaders()
-                            .set("Content-Type", "application/json");
-                          let date = moment().format('YYYY-MM-DD');
-                          this.api.put("table/movement_temp",
-                            {
-                              "movementtemp_no": this.getmovementlist[0].movementtemp_no,
-                              "qty": parseInt(this.getmovementlist[0].qty) + parseInt(data.qty),
-                              "date": date,
-                              "pic": '12345'
-                            },
-                            { headers })
-                            .subscribe(val => {
-                              this.getMovementTemp();
-                              this.myForm.get('barcodeno').setValue('');
-                              let alert = this.alertCtrl.create({
-                                title: 'Sukses ',
-                                subTitle: 'Update Item Sukses',
-                                buttons: ['OK']
-                              });
-                              alert.present();
-                            })
-                        }
-                        else {
-                          const headers = new HttpHeaders()
-                            .set("Content-Type", "application/json");
-                          this.getNextNoPUTemp().subscribe(val => {
-                            this.nextno = val['nextno'];
-                            let date = moment().format('YYYY-MM-DD');
-                            this.api.post("table/movement_temp",
+                },
+                {
+                  text: 'OK',
+                  handler: data => {
+                    if (data.qty > this.putawaylist[0].qty) {
+                      let alert = this.alertCtrl.create({
+                        title: 'Error ',
+                        subTitle: 'Qty Input Greater than Qty Stock',
+                        buttons: ['OK']
+                      });
+                      alert.present();
+                    }
+                    else {
+                      this.api.get('table/movement_temp', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + ' AND ' + "item_no=" + "'" + itemno + "'" } })
+                        .subscribe(val => {
+                          this.getmovementlist = val['data'];
+                          if (this.getmovementlist.length) {
+                            const headers = new HttpHeaders()
+                              .set("Content-Type", "application/json");
+                            let datetime = moment().format('YYYY-MM-DD HH:mm');
+                            this.api.put("table/movement_temp",
                               {
-                                "movementtemp_no": this.nextno,
-                                "putaway_no": this.putawaylist[0].putaway_no,
-                                "receiving_no": this.putawaylist[0].receiving_no,
-                                "doc_no": this.putawaylist[0].doc_no,
-                                "order_no": this.putawaylist[0].order_no,
-                                "batch_no": this.putawaylist[0].batch_no,
-                                "item_no": this.putawaylist[0].item_no,
-                                "date": date,
-                                "location_code": this.putawaylist[0].location_code,
-                                "location_previous_position": this.putawaylist[0].location_position,
-                                "location_current_position": this.myForm.value.rackno,
-                                "division": this.putawaylist[0].division,
-                                "qty": data.qty,
-                                "qty_putaway": this.putawaylist[0].qty,
-                                "qty_receiving": this.putawaylist[0].qty_receiving,
-                                "unit": this.putawaylist[0].unit,
-                                "flag": '',
-                                "pic": '12345',
-                                "status": 'OPEN',
-                                "chronology_no": '',
-                                "uuid": UUID.UUID()
+                                "movementtemp_no": this.getmovementlist[0].movementtemp_no,
+                                "qty": parseInt(this.getmovementlist[0].qty) + parseInt(data.qty),
+                                "datetime": datetime
                               },
                               { headers })
                               .subscribe(val => {
                                 this.getMovementTemp();
+                                this.myForm.get('rackno').setValue('');
                                 this.myForm.get('barcodeno').setValue('');
                                 let alert = this.alertCtrl.create({
                                   title: 'Sukses ',
-                                  subTitle: 'Add Item Sukses',
+                                  subTitle: 'Update Item Sukses',
                                   buttons: ['OK']
                                 });
                                 alert.present();
                               })
-                          });
-                        }
-                      });
+                          }
+                          else {
+                            const headers = new HttpHeaders()
+                              .set("Content-Type", "application/json");
+                            this.getNextNoPUTemp().subscribe(val => {
+                              this.nextno = val['nextno'];
+                              let datetime = moment().format('YYYY-MM-DD HH:mm');
+                              this.api.post("table/movement_temp",
+                                {
+                                  "movementtemp_no": this.nextno,
+                                  "receiving_no": this.putawaylist[0].receiving_no,
+                                  "batch_no": this.putawaylist[0].batch_no,
+                                  "item_no": this.putawaylist[0].item_no,
+                                  "qty": data.qty,
+                                  "location_code": this.putawaylist[0].location,
+                                  "location_previous_position": this.putawaylist[0].sub_location,
+                                  "location_current_position": '',
+                                  "status": 'OPEN',
+                                  "datetime": datetime,
+                                  "uuid": UUID.UUID()
+                                },
+                                { headers })
+                                .subscribe(val => {
+                                  this.getMovementTemp();
+                                  this.myForm.get('rackno').setValue('');
+                                  this.myForm.get('barcodeno').setValue('');
+                                  let alert = this.alertCtrl.create({
+                                    title: 'Sukses ',
+                                    subTitle: 'Add Item Sukses',
+                                    buttons: ['OK']
+                                  });
+                                  alert.present();
+                                })
+                            });
+                          }
+                        });
+                    }
                   }
                 }
-              }
-            ]
-          });
-          alert.present();
-        }
-        else {
-          let alert = this.alertCtrl.create({
-            title: 'Error ',
-            subTitle: 'Barcode Not Found',
-            buttons: ['OK']
-          });
-          alert.present();
-        }
+              ]
+            });
+            alert.present();
+          }
+          else {
+            let alert = this.alertCtrl.create({
+              title: 'Error ',
+              subTitle: 'Barcode Not Found',
+              buttons: ['OK']
+            });
+            alert.present();
+          }
 
-      });
+        });
+    }
+  }
+  getNextNoStockBalance() {
+    return this.api.get('nextno/stock_balance/id')
+  }
+  doInsertPutaway(data) {
+    this.getNextNoStockBalance().subscribe(val => {
+      let nextnostockbalance = val['nextno'];
+      const headers = new HttpHeaders()
+        .set("Content-Type", "application/json");
+      let date = moment().format('YYYY-MM-DD');
+      this.api.post("table/stock_balance",
+        {
+          "id": nextnostockbalance,
+          "receiving_no": data[0].receiving_no,
+          "batch_no": data[0].batch_no,
+          "item_no": data[0].item_no,
+          "qty_in": data[0].qty,
+          "qty_out": 0,
+          "location": data[0].location_code,
+          "sub_location": this.myForm.value.rackno,
+          "description": 'Putaway',
+          "status": 'OPEN',
+          "datetime": date,
+          "uuid": UUID.UUID()
+        },
+        { headers })
+        .subscribe(val => {
+
+        }, err => {
+          this.api.post("table/stock_balance",
+            {
+              "id": nextnostockbalance,
+              "receiving_no": data[0].receiving_no,
+              "batch_no": data[0].batch_no,
+              "item_no": data[0].item_no,
+              "qty_in": data[0].qty,
+              "qty_out": 0,
+              "location": data[0].location_code,
+              "sub_location": this.myForm.value.rackno,
+              "description": 'Putaway',
+              "status": 'OPEN',
+              "datetime": date,
+              "uuid": UUID.UUID()
+            },
+            { headers })
+            .subscribe()
+        })
+    });
   }
   doSaveToMovement() {
-    this.api.get('table/movement_temp', { params: { limit: 30, filter: "pic=" + '12345' } })
+    this.api.get('table/movement_temp', { params: { limit: 30 } })
       .subscribe(val => {
         this.getmovementlist = val['data'];
         this.api.get('table/location_master', { params: { limit: 30, filter: "location_alocation=" + "'" + this.myForm.value.rackno + "'" } })
@@ -264,98 +314,74 @@ export class MovementPage {
                   {
                     text: 'Save',
                     handler: () => {
-                      this.api.get('table/movement_temp', { params: { limit: 30, filter: "pic=" + '12345' } })
+                      this.api.get('table/movement_temp', { params: { limit: 30 } })
                         .subscribe(val => {
                           this.getmovementlist = val['data'];
                           for (let i = 0; i < this.getmovementlist.length; i++) {
                             const headers = new HttpHeaders()
                               .set("Content-Type", "application/json");
-                            this.getNextNo().subscribe(val => {
+                            this.getNextNoStockBalance().subscribe(val => {
                               this.nextno = val['nextno'];
+                              const headers = new HttpHeaders()
+                                .set("Content-Type", "application/json");
                               let date = moment().format('YYYY-MM-DD');
-                              this.api.post("table/putaway",
+                              this.api.post("table/stock_balance",
                                 {
-                                  "putaway_no": this.nextno,
+                                  "id": this.nextno,
                                   "receiving_no": this.getmovementlist[0].receiving_no,
-                                  "doc_no": this.getmovementlist[0].doc_no,
-                                  "order_no": this.getmovementlist[0].order_no,
                                   "batch_no": this.getmovementlist[0].batch_no,
                                   "item_no": this.getmovementlist[0].item_no,
-                                  "posting_date": date,
-                                  "location_code": this.getmovementlist[0].location_code,
-                                  "location_position": this.myForm.value.rackno,
-                                  "division": this.getmovementlist[0].division,
-                                  "qty": this.getmovementlist[0].qty,
-                                  "qty_receiving": this.getmovementlist[0].qty_receiving,
-                                  "unit": this.getmovementlist[0].unit,
-                                  "flag": '',
-                                  "pic": '',
+                                  "qty_in": 0,
+                                  "qty_out": this.getmovementlist[0].qty,
+                                  "location": this.getmovementlist[0].location_code,
+                                  "sub_location": this.getmovementlist[0].location_previous_position,
+                                  "description": 'Movement',
                                   "status": 'OPEN',
-                                  "chronology_no": '',
+                                  "datetime": date,
                                   "uuid": UUID.UUID()
                                 },
                                 { headers })
                                 .subscribe(val => {
+                                  let data = this.getmovementlist
+                                  this.doInsertPutaway(data)
                                   const headers = new HttpHeaders()
                                     .set("Content-Type", "application/json");
                                   this.getNextNoPU().subscribe(val => {
                                     this.nextno = val['nextno'];
-                                    let date = moment().format('YYYY-MM-DD');
+                                    let datetime = moment().format('YYYY-MM-DD HH:mm');
                                     this.api.post("table/movement",
                                       {
                                         "movement_no": this.nextno,
-                                        "putaway_no": this.getmovementlist[0].putaway_no,
                                         "receiving_no": this.getmovementlist[0].receiving_no,
-                                        "doc_no": this.getmovementlist[0].doc_no,
-                                        "order_no": this.getmovementlist[0].order_no,
                                         "batch_no": this.getmovementlist[0].batch_no,
                                         "item_no": this.getmovementlist[0].item_no,
-                                        "date": date,
                                         "location_code": this.getmovementlist[0].location_code,
                                         "location_previous_position": this.getmovementlist[0].location_previous_position,
                                         "location_current_position": this.myForm.value.rackno,
-                                        "division": this.getmovementlist[0].division,
                                         "qty": this.getmovementlist[0].qty,
-                                        "qty_putaway": this.putawaylist[0].qty_putaway,
-                                        "qty_receiving": this.putawaylist[0].qty_receiving,
-                                        "unit": this.putawaylist[0].unit,
-                                        "flag": '',
-                                        "pic": '12345',
                                         "status": 'OPEN',
-                                        "chronology_no": '',
+                                        "datetime": datetime,
                                         "uuid": UUID.UUID()
                                       },
                                       { headers })
                                       .subscribe(val => {
                                         const headers = new HttpHeaders()
                                           .set("Content-Type", "application/json");
-                                        let date = moment().format('YYYY-MM-DD');
-                                        this.api.put("table/putaway",
-                                          {
-                                            "putaway_no": this.getmovementlist[0].putaway_no,
-                                            "qty": this.getmovementlist[0].qty_putaway - this.getmovementlist[0].qty,
-                                            "pic": '12345',
-                                          },
-                                          { headers })
+                                        this.api.delete("table/movement_temp", { params: { filter: "movementtemp_no=" + "'" + this.getmovementlist[0].movementtemp_no + "'" }, headers })
                                           .subscribe(val => {
-                                            const headers = new HttpHeaders()
-                                              .set("Content-Type", "application/json");
-                                            this.api.delete("table/movement_temp", { params: { filter: "movementtemp_no=" + "'" + this.getmovementlist[0].movementtemp_no + "'" }, headers })
+                                            this.api.get('table/movement_temp', { params: { limit: 30 } })
                                               .subscribe(val => {
-                                                this.api.get('table/movement_temp', { params: { limit: 30, filter: "pic=" + '12345' } })
-                                                  .subscribe(val => {
-                                                    this.getmovementlist = val['data'];
-                                                    let alert = this.alertCtrl.create({
-                                                      title: 'Sukses ',
-                                                      subTitle: 'Save Item To Rack Sukses',
-                                                      buttons: ['OK']
-                                                    });
-                                                    this.myForm.reset()
-                                                    this.getMovementTemp();
-                                                    alert.present();
-                                                  });
-                                              })
-                                          });
+                                                this.getmovementlist = val['data'];
+                                                let alert = this.alertCtrl.create({
+                                                  title: 'Sukses ',
+                                                  subTitle: 'Save Item To Rack Sukses',
+                                                  buttons: ['OK']
+                                                });
+                                                this.myForm.reset()
+                                                this.getMovementTemp();
+                                                alert.present();
+                                              });
+                                          })
 
                                       })
                                   });
@@ -432,125 +458,123 @@ export class MovementPage {
     this.option = {
       prompt: "Please scan your code"
     }
-    // this.barcodeScanner.scan({ "orientation": 'landscape' }).then((barcodeData) => {
-    //   if (barcodeData.cancelled) {
-    //     this.loading = false;
-    //     return false;
-    //   }
     window.plugins.honeywell.listen(data => {
+      let rackno = this.myForm.value.rackno
       var barcodeno = data;
       var batchno = barcodeno.substring(0, 6);
       var itemno = barcodeno.substring(6, 14);
-      this.api.get('table/putaway', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + ' AND ' + "item_no=" + "'" + itemno + "'" + ' AND ' + "status='OPEN'" } })
-        .subscribe(val => {
-          this.putawaylist = val['data'];
-          if (this.putawaylist.length) {
-            let alert = this.alertCtrl.create({
-              title: 'Qty',
-              inputs: [
-                {
-                  name: 'qty',
-                  placeholder: 'Qty'
-                }
-              ],
-              buttons: [
-                {
-                  text: 'Cancel',
-                  role: 'cancel',
-                  handler: data => {
+      if (barcodeno == '') {
+        let alert = this.alertCtrl.create({
+          title: 'Error ',
+          subTitle: 'Rack Number Must Be Fill',
+          buttons: ['OK']
+        });
+        alert.present();
+      }
+      else {
+        this.api.get('table/stock_balance', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + ' AND ' + "item_no=" + "'" + itemno + "'" + ' AND ' + "status='OPEN' AND sub_location=" + "'" + rackno + "' AND description= 'Putaway'" } })
+          .subscribe(val => {
+            this.putawaylist = val['data'];
+            if (this.putawaylist.length) {
+              let alert = this.alertCtrl.create({
+                title: 'Qty',
+                inputs: [
+                  {
+                    name: 'qty',
+                    placeholder: 'Qty'
                   }
-                },
-                {
-                  text: 'OK',
-                  handler: data => {
-                    var batchno = barcodeno.substring(0, 6);
-                    var itemno = barcodeno.substring(6, 14);
-                    this.api.get('table/movement_temp', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + " AND " + "item_no=" + "'" + itemno + "'" } })
-                      .subscribe(val => {
-                        this.getmovementlist = val['data'];
-                        if (this.getmovementlist.length) {
-                          const headers = new HttpHeaders()
-                            .set("Content-Type", "application/json");
-                          let date = moment().format('YYYY-MM-DD');
-                          this.api.put("table/movement_temp",
-                            {
-                              "movementtemp_no": this.getmovementlist[0].movementtemp_no,
-                              "qty": parseInt(this.getmovementlist[0].qty) + parseInt(data.qty),
-                              "date": date,
-                              "pic": '12345'
-                            },
-                            { headers })
-                            .subscribe(val => {
-                              this.getMovementTemp();
-                              this.myForm.get('barcodeno').setValue('');
-                              let alert = this.alertCtrl.create({
-                                title: 'Sukses ',
-                                subTitle: 'Update Item Sukses',
-                                buttons: ['OK']
-                              });
-                              alert.present();
-                            })
-                        }
-                        else {
-                          const headers = new HttpHeaders()
-                            .set("Content-Type", "application/json");
-                          this.getNextNoPUTemp().subscribe(val => {
-                            this.nextno = val['nextno'];
-                            let date = moment().format('YYYY-MM-DD');
-                            this.api.post("table/movement_temp",
+                ],
+                buttons: [
+                  {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    handler: data => {
+                    }
+                  },
+                  {
+                    text: 'OK',
+                    handler: data => {
+                      let rackno = this.myForm.value.rackno
+                      var batchno = barcodeno.substring(0, 6);
+                      var itemno = barcodeno.substring(6, 14);
+                      this.api.get('table/stock_balance', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + " AND " + "item_no=" + "'" + itemno + "' AND sub_location=" + "'" + rackno + "' AND description= 'Putaway'" } })
+                        .subscribe(val => {
+                          this.getmovementlist = val['data'];
+                          if (this.getmovementlist.length) {
+                            const headers = new HttpHeaders()
+                              .set("Content-Type", "application/json");
+                            let datetime = moment().format('YYYY-MM-DD HH:mm');
+                            this.api.put("table/movement_temp",
                               {
-                                "movementtemp_no": this.nextno,
-                                "putaway_no": this.putawaylist[0].putaway_no,
-                                "receiving_no": this.putawaylist[0].receiving_no,
-                                "doc_no": this.putawaylist[0].doc_no,
-                                "order_no": this.putawaylist[0].order_no,
-                                "batch_no": this.putawaylist[0].batch_no,
-                                "item_no": this.putawaylist[0].item_no,
-                                "date": date,
-                                "location_code": this.putawaylist[0].location_code,
-                                "location_previous_position": this.putawaylist[0].location_position,
-                                "location_current_position": this.myForm.value.rackno,
-                                "division": this.putawaylist[0].division,
-                                "qty": data.qty,
-                                "qty_putaway": this.putawaylist[0].qty,
-                                "qty_receiving": this.putawaylist[0].qty_receiving,
-                                "unit": this.putawaylist[0].unit,
-                                "flag": '',
-                                "pic": '12345',
-                                "status": 'OPEN',
-                                "chronology_no": '',
-                                "uuid": UUID.UUID()
+                                "movementtemp_no": this.getmovementlist[0].movementtemp_no,
+                                "qty": parseInt(this.getmovementlist[0].qty) + parseInt(data.qty),
+                                "datetime": datetime,
                               },
                               { headers })
                               .subscribe(val => {
                                 this.getMovementTemp();
+                                this.myForm.get('rackno').setValue('');
                                 this.myForm.get('barcodeno').setValue('');
                                 let alert = this.alertCtrl.create({
                                   title: 'Sukses ',
-                                  subTitle: 'Add Item Sukses',
+                                  subTitle: 'Update Item Sukses',
                                   buttons: ['OK']
                                 });
                                 alert.present();
                               })
-                          });
-                        }
-                      });
+                          }
+                          else {
+                            const headers = new HttpHeaders()
+                              .set("Content-Type", "application/json");
+                            this.getNextNoPUTemp().subscribe(val => {
+                              this.nextno = val['nextno'];
+                              let datetime = moment().format('YYYY-MM-DD HH:mm');
+                              this.api.post("table/movement_temp",
+                                {
+                                  "movementtemp_no": this.nextno,
+                                  "receiving_no": this.putawaylist[0].receiving_no,
+                                  "batch_no": this.putawaylist[0].batch_no,
+                                  "item_no": this.putawaylist[0].item_no,
+                                  "location_code": this.putawaylist[0].location,
+                                  "location_previous_position": this.putawaylist[0].sub_location,
+                                  "location_current_position": this.myForm.value.rackno,
+                                  "qty": data.qty,
+                                  "status": 'OPEN',
+                                  "datetime": datetime,
+                                  "uuid": UUID.UUID()
+                                },
+                                { headers })
+                                .subscribe(val => {
+                                  this.getMovementTemp();
+                                  this.myForm.get('rackno').setValue('');
+                                  this.myForm.get('barcodeno').setValue('');
+                                  let alert = this.alertCtrl.create({
+                                    title: 'Sukses ',
+                                    subTitle: 'Add Item Sukses',
+                                    buttons: ['OK']
+                                  });
+                                  alert.present();
+                                })
+                            });
+                          }
+                        });
+                    }
                   }
-                }
-              ]
-            });
-            alert.present();
-          }
-          else {
-            let alert = this.alertCtrl.create({
-              title: 'Error ',
-              subTitle: 'Barcode Not Found',
-              buttons: ['OK']
-            });
-            alert.present();
-          }
+                ]
+              });
+              alert.present();
+            }
+            else {
+              let alert = this.alertCtrl.create({
+                title: 'Error ',
+                subTitle: 'Barcode Not Found',
+                buttons: ['OK']
+              });
+              alert.present();
+            }
 
-        });
+          });
+      }
     });
   }
   doScanBarcodeRack() {
@@ -570,7 +594,7 @@ export class MovementPage {
     });
   }
   getMovementTemp() {
-    this.api.get('table/movement_temp', { params: { limit: 30, filter: "pic='12345'" } })
+    this.api.get('table/movement_temp', { params: { limit: 30 } })
       .subscribe(val => {
         this.movementtemp = val['data'];
       });

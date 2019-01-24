@@ -20,6 +20,8 @@ export class TaskPage {
   private batchnolist = '';
   private qcqty = '';
   public detailqc: boolean = false;
+  public rolecab = '';
+
   constructor(
     public navCtrl: NavController,
     public navParams: NavParams,
@@ -52,6 +54,7 @@ export class TaskPage {
         .subscribe(val => {
           this.role = val['data']
           this.roleid = this.role[0].id_group
+          this.rolecab = this.role[0].id_cab
         })
     });
   }
@@ -155,6 +158,7 @@ export class TaskPage {
         .subscribe(val => {
           this.role = val['data']
           this.roleid = this.role[0].id_group
+          this.rolecab = this.role[0].id_cab
         })
       refresher.complete();
     });

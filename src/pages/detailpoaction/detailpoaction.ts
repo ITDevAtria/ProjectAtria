@@ -63,6 +63,7 @@ export class DetailpoactionPage {
   private nextno: any;
   private uuid = '';
   private podetail = [];
+  public rolecab = '';
 
   constructor(
     public navCtrl: NavController,
@@ -96,6 +97,7 @@ export class DetailpoactionPage {
     this.pic = navParams.get('pic');
     this.piclokasi = navParams.get('piclokasi');
     this.picbarcode = navParams.get('picbarcode');
+    this.rolecab = navParams.get('rolecab');
     console.log(this.piclokasi)
     console.log(this.picbarcode)
     this.expectedreceiptdate = navParams.get('expectedreceiptdate');
@@ -268,7 +270,7 @@ export class DetailpoactionPage {
           document.getElementById("myModal").style.display = "none";
           const headers = new HttpHeaders()
             .set("Content-Type", "application/json");
-          if (this.myFormModal.value.location != '') {
+          /*if (this.myFormModal.value.location != '') {
             this.api.put("table/location_master",
               {
                 "location_alocation": this.myFormModal.value.location,
@@ -291,7 +293,7 @@ export class DetailpoactionPage {
               },
               { headers })
               .subscribe();
-          }
+          }*/
           this.myFormModal.reset()
           this.locations = [];
           let alert = this.alertCtrl.create({
@@ -314,7 +316,7 @@ export class DetailpoactionPage {
         this.division = val['data'];
         this.divisioncode = this.division[0].description
         return new Promise(resolve => {
-          this.api.get('table/location_master', { params: { limit: 1000, filter: 'division=' + "'" + this.division[0].code + "'" } }).subscribe(val => {
+          this.api.get('table/location_master', { params: { limit: 1000, filter: 'division=' + "'" + this.division[0].code + "' AND location_code=" + "'" + this.rolecab + "'" } }).subscribe(val => {
             this.location_master = val['data'];
             this.searchloc = this.location_master
             document.getElementById("myLocations").style.display = "block";
@@ -329,7 +331,7 @@ export class DetailpoactionPage {
     this.setdiv = div.code;
   }
   doLocation() {
-    this.api.get('table/location_master', { params: { limit: 1000, filter: 'division=' + "'" + this.setdiv + "'" } }).subscribe(val => {
+    this.api.get('table/location_master', { params: { limit: 1000, filter: 'division=' + "'" + this.setdiv + "' AND location_code=" + "'" + this.rolecab + "'" } }).subscribe(val => {
       this.location_master = val['data'];
       this.searchloc = this.location_master
     });
@@ -456,7 +458,7 @@ export class DetailpoactionPage {
                 .subscribe(val => {
                   let alert = this.alertCtrl.create({
                     title: 'Sukses',
-                    subTitle: 'Save Sukses',
+                    subTitle: 'Save Lokasi Sukses',
                     buttons: ['OK']
                   });
                   alert.present();
@@ -549,7 +551,7 @@ export class DetailpoactionPage {
                 .subscribe(val => {
                   let alert = this.alertCtrl.create({
                     title: 'Sukses',
-                    subTitle: 'Save Sukses',
+                    subTitle: 'Save Barcode Sukses',
                     buttons: ['OK']
                   });
                   alert.present();

@@ -88,6 +88,7 @@ export class QcoutPage {
   public dataqcsearch = [];
   public name: any;
   public qclistrejectedreceiptno: any;
+  public rolecab = '';
 
   constructor(
     public navCtrl: NavController,
@@ -123,6 +124,7 @@ export class QcoutPage {
         .subscribe(val => {
           this.role = val['data']
           this.roleid = this.role[0].id_group
+          this.rolecab = this.role[0].id_cab
           console.log(this.roleid)
           this.api.get('table/qc_out', { params: { limit: 10, filter: "status='OPEN' AND (pic = '" + this.userid + "' OR pic_admin='" + this.roleid + "')" } })
             .subscribe(val => {

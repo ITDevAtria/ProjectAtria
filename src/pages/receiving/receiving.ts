@@ -27,6 +27,7 @@ export class ReceivingPage {
   private token:any;
   public loader: any;
   public name: any;
+  public rolecab = '';
 
   constructor(
     public navCtrl: NavController,
@@ -48,6 +49,7 @@ export class ReceivingPage {
       content: 'Loading Content...'
     });
     this.loader.present();
+    this.rolecab = this.navParams.get('rolecab')
     this.getPO();
     this.toggled = false;
     this.rcv = "receiving"
@@ -125,7 +127,8 @@ export class ReceivingPage {
       orderno: po.order_no,
       batchno: po.batch_no,
       locationcode: po.location_code,
-      expectedreceiptdate: po.expected_receipt_date
+      expectedreceiptdate: po.expected_receipt_date,
+      rolecab: this.rolecab
     });
   }
 

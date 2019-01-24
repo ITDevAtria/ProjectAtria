@@ -63,6 +63,7 @@ export class ReceivingdetailPage {
   public eventTitle: string;
   private barcodedata: any;
   private token: any;
+  public rolecab = '';
 
   constructor(
     public navCtrl: NavController,
@@ -87,6 +88,7 @@ export class ReceivingdetailPage {
     this.orderno = navParams.get('orderno');
     this.batchno = navParams.get('batchno');
     this.locationcode = navParams.get('locationcode');
+    this.rolecab = navParams.get('rolecab');
     this.expectedreceiptdate = navParams.get('expectedreceiptdate');
     this.getRCVChecked();
   }
@@ -492,7 +494,7 @@ export class ReceivingdetailPage {
         this.division = val['data'];
         this.divisioncode = this.division[14].description
         return new Promise(resolve => {
-          this.api.get('table/location_master', { params: { limit: 1000, filter: 'division=' + "'" + this.division[14].code + "'" } }).subscribe(val => {
+          this.api.get('table/location_master', { params: { limit: 1000, filter: 'division=' + "'" + this.division[14].code + "' AND location_code=" + "'" + this.rolecab + "'" } }).subscribe(val => {
             this.location_master = val['data'];
             this.searchloc = this.location_master;
             document.getElementById("myLocations").style.display = "block";
@@ -507,7 +509,7 @@ export class ReceivingdetailPage {
     this.setdiv = div.code;
   }
   doLocation() {
-    this.api.get('table/location_master', { params: { limit: 1000, filter: 'division=' + "'" + this.setdiv + "'" } }).subscribe(val => {
+    this.api.get('table/location_master', { params: { limit: 1000, filter: 'division=' + "'" + this.setdiv + "' AND location_code=" + "'" + this.rolecab + "'" } }).subscribe(val => {
       this.location_master = val['data'];
       this.searchloc = this.location_master;
     });
@@ -644,7 +646,6 @@ export class ReceivingdetailPage {
                             },
                             { headers })
                             .subscribe(val => {
-
                             }, err => {
                               this.api.post("table/stock_balance",
                                 {
@@ -662,7 +663,8 @@ export class ReceivingdetailPage {
                                   "uuid": UUID.UUID()
                                 },
                                 { headers })
-                                .subscribe()
+                                .subscribe(val => {
+                                })
                             })
                         });
                       }, err => {
@@ -706,7 +708,6 @@ export class ReceivingdetailPage {
                                 },
                                 { headers })
                                 .subscribe(val => {
-
                                 }, err => {
                                   this.api.post("table/stock_balance",
                                     {
@@ -724,7 +725,8 @@ export class ReceivingdetailPage {
                                       "uuid": UUID.UUID()
                                     },
                                     { headers })
-                                    .subscribe()
+                                    .subscribe(val => {
+                                    })
                                 })
                             });
                           }, err => {
@@ -796,7 +798,6 @@ export class ReceivingdetailPage {
                             },
                             { headers })
                             .subscribe(val => {
-
                             }, err => {
                               this.api.post("table/stock_balance",
                                 {
@@ -814,7 +815,8 @@ export class ReceivingdetailPage {
                                   "uuid": UUID.UUID()
                                 },
                                 { headers })
-                                .subscribe()
+                                .subscribe(val => {
+                                })
                             })
                         });
                       }, err => {

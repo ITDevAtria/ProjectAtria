@@ -60,6 +60,7 @@ export class PurchasingorderPage {
   public uuid = '';
   public porelease = [];
   public name: any;
+  public rolecab = '';
 
   constructor(
     public navCtrl: NavController,
@@ -124,6 +125,7 @@ export class PurchasingorderPage {
           .subscribe(val => {
             this.role = val['data']
             this.roleid = this.role[0].id_group
+            this.rolecab = this.role[0].id_cab
             if (this.roleid != "ADMIN") {
               this.po = "preparation"
             }
@@ -323,7 +325,8 @@ export class PurchasingorderPage {
       status: prepare.status,
       pic: prepare.pic,
       piclokasi: prepare.pic_lokasi,
-      picbarcode: prepare.pic_barcode
+      picbarcode: prepare.pic_barcode,
+      rolecab: this.rolecab
     });
   }
   doAddPO() {

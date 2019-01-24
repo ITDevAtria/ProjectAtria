@@ -23,6 +23,7 @@ export class LoginPage {
   public preparation = [];
   public rolearea = '';
   public rolegroup = '';
+  public rolecab = '';
 
   constructor(
     public platform: Platform,
@@ -85,6 +86,7 @@ export class LoginPage {
                       if (this.role.length != 0) {
                         this.rolearea = this.role[0].id_area
                         this.rolegroup = this.role[0].id_group
+                        this.rolecab = this.role[0].id_cab
                         this.api.get('table/purchasing_order', { params: { limit: 30, filter: "status='INP2'" + " AND " + "(pic=" + "'" + this.myForm.value.userid + "'" + " OR " + "pic_lokasi=" + "'" + this.myForm.value.userid + "'" + " OR " + "pic_barcode=" + "'" + this.myForm.value.userid + "')" } })
                           .subscribe(val => {
                             this.preparation = val['data'];

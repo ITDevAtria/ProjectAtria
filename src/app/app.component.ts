@@ -21,9 +21,11 @@ export class MyApp {
   public role = [];
   private rolearea = '';
   private rolegroup = '';
+  private rolecab = '';
   public preparation = [];
   public receiving = [];
   public users = [];
+
   constructor(
     platform: Platform,
     statusBar: StatusBar,
@@ -106,6 +108,7 @@ export class MyApp {
             if (this.role.length != 0) {
               this.rolearea = this.role[0].id_area
               this.rolegroup = this.role[0].id_group
+              this.rolecab = this.role[0].id_cab
             }
           })
       });

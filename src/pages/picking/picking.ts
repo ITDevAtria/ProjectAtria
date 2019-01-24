@@ -83,6 +83,7 @@ export class PickingPage {
   public pickingreleasesearch = [];
   public listpickingsearch = [];
   public totaldatalistpickingsearch: any;
+  public rolecab = '';
 
   constructor(
     public navCtrl: NavController,
@@ -121,6 +122,7 @@ export class PickingPage {
             this.rolearea = this.role[0].id_area
             this.rolegroup = this.role[0].id_group
             this.roleid = this.role[0].id_role
+            this.rolecab = this.role[0].id_cab
             console.log(this.roleid, this.rolearea, this.rolegroup)
             if (this.rolegroup == "STAFF") {
               this.pick = "picking"
