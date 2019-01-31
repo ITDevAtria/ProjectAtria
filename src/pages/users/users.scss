@@ -1,21 +1,26 @@
-page-transferorderdetailadd {
-    .content-menu {
+page-users {
+    .row-content {
+        border-top: 1px solid;
+        border-bottom: 1px solid;
+        border-color: #9e9fa1;
         background: #ffffff;
     }
-    .item-input {
-        background: #ffffff;
+    .row-content-list {
+        background: transparent;
         color: #000000;
     }
-    .close {
-        text-align: left;
-        color: #ffffff;
-        height: 0px;
+    .row-content-list:hover {
+        background: #b7c400;
+        color: #000000;
+        cursor: pointer;
     }
-    .logo-atria {
-       text-align: center;
-       margin-left: 50px;
+    .col-content {
+        background:transparent;
+        color:#000000;
+        border:0px;
+        text-align:left;
     }
-    .modal-items {
+    .modal-users {
         display: block; /* Hidden by default */
         position: absolute; /* Stay in place */
         z-index: 1; /* Sit on top */
@@ -28,10 +33,9 @@ page-transferorderdetailadd {
     }
     
     /* Modal Content/Box */
-    .modal-content-items {
+    .modal-content-users {
         background-color: #fefefe;
         width: 100%; /* Could be more or less, depending on screen size */
         height: 100%;
-        margin-top:70px;
     }
- }
+}

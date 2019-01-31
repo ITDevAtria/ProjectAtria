@@ -45,6 +45,8 @@ export class TransferorderPage {
   public totaldatalistpicking: any;
   public usertoken = [];
   public searchpicking = [];
+  public rolecab: any;
+  public userid: any;
 
   constructor(
     public navCtrl: NavController,
@@ -59,6 +61,8 @@ export class TransferorderPage {
     this.myFormModalPic = formBuilder.group({
       pic: ['', Validators.compose([Validators.required])],
     })
+    this.rolecab = this.navParams.get('rolecab')
+    this.userid = this.navParams.get('userid')
     platform.ready().then(() => {
       this.width = platform.width();
       this.height = platform.height();
@@ -66,15 +70,15 @@ export class TransferorderPage {
       this.storage.get('name').then((val) => {
         this.name = val;
       });
-      this.api.get('table/transfer_order', { params: { limit: 30, filter: "status='OPEN'" } }).subscribe(val => {
+      this.api.get('table/transfer_order', { params: { limit: 30, filter: "status='OPEN' AND to_location=" + "'" + this.rolecab + "'" } }).subscribe(val => {
         this.transferorder = val['data']
         console.log(this.transferorder)
       });
-      this.api.get('table/transfer_order', { params: { limit: 30, filter: "status='INPG'" } }).subscribe(val => {
+      this.api.get('table/transfer_order', { params: { limit: 30, filter: "status='INPG' AND from_location=" + "'" + this.rolecab + "'" } }).subscribe(val => {
         this.transferorderlist = val['data']
         console.log(this.transferorderlist)
       });
-      this.api.get('table/transfer_order', { params: { limit: 30, filter: "status='CLS1'" } }).subscribe(val => {
+      this.api.get('table/transfer_order', { params: { limit: 30, filter: "status='CLS1' AND to_location=" + "'" + this.rolecab + "'" } }).subscribe(val => {
         this.transferorderreceiving = val['data']
         console.log(this.transferorderreceiving)
       });
@@ -95,7 +99,7 @@ export class TransferorderPage {
         this.halamanto++;
         this.api.get('table/transfer_order', {
           params: {
-            limit: 30, offset: offsetprepare, filter: "status='OPEN'"
+            limit: 30, offset: offsetprepare, filter: "status='OPEN' AND to_location=" + "'" + this.rolecab + "'"
           }
         })
           .subscribe(val => {
@@ -134,7 +138,7 @@ export class TransferorderPage {
     })
   }
   doRefreshTO(refresher) {
-    this.api.get("table/transfer_order", { params: { limit: 30, filter: "status='OPEN'" } }).subscribe(val => {
+    this.api.get("table/transfer_order", { params: { limit: 30, filter: "status='OPEN' AND to_location=" + "'" + this.rolecab + "'" } }).subscribe(val => {
       this.transferorder = val['data'];
       this.totaldatato = val['count'];
       this.searchto = this.transferorder;
@@ -148,14 +152,14 @@ export class TransferorderPage {
     else {
       this.sortTO = 'ASC'
     }
-    this.api.get("table/transfer_order", { params: { filter: "status='OPEN'", sort: filter + " " + this.sortTO + " " } }).subscribe(val => {
+    this.api.get("table/transfer_order", { params: { filter: "status='OPEN' AND to_location=" + "'" + this.rolecab + "'", sort: filter + " " + this.sortTO + " " } }).subscribe(val => {
       this.transferorder = val['data'];
       this.totaldatato = val['count'];
       this.filter = filter
     });
   }
   doAddTO() {
-    let locationModal = this.modalCtrl.create('TransferorderaddPage', this.modalCtrl, { cssClass: "modal-fullscreen" });
+    let locationModal = this.modalCtrl.create('TransferorderaddPage', { rolecab: this.rolecab, userid: this.userid }, { cssClass: "modal-fullscreen" });
     locationModal.present();
   }
   viewDetailTO(to) {
@@ -164,7 +168,9 @@ export class TransferorderPage {
       from: to.from_location,
       to: to.to_location,
       transferdate: to.transfer_date,
-      status: to.status
+      status: to.status,
+      rolecab: this.rolecab,
+      userid: this.userid
     });
   }
   doPostingTO(to) {
@@ -221,7 +227,7 @@ export class TransferorderPage {
         this.halamantolist++;
         this.api.get('table/transfer_order', {
           params: {
-            limit: 30, offset: offsetprepare, filter: "status='INPG'"
+            limit: 30, offset: offsetprepare, filter: "status='INPG' AND from_location=" + "'" + this.rolecab + "'"
           }
         })
           .subscribe(val => {
@@ -260,7 +266,7 @@ export class TransferorderPage {
     })
   }
   doRefreshTOList(refresher) {
-    this.api.get("table/transfer_order", { params: { limit: 30, filter: "status='INPG'" } }).subscribe(val => {
+    this.api.get("table/transfer_order", { params: { limit: 30, filter: "status='INPG' AND from_location=" + "'" + this.rolecab + "'" } }).subscribe(val => {
       this.transferorderlist = val['data'];
       this.totaldatatolist = val['count'];
       this.searchtolist = this.transferorderlist;
@@ -274,7 +280,7 @@ export class TransferorderPage {
     else {
       this.sortTOList = 'ASC'
     }
-    this.api.get("table/transfer_order", { params: { filter: "status='INPG'", sort: filter + " " + this.sortTOList + " " } }).subscribe(val => {
+    this.api.get("table/transfer_order", { params: { filter: "status='INPG' AND from_location=" + "'" + this.rolecab + "'", sort: filter + " " + this.sortTOList + " " } }).subscribe(val => {
       this.transferorderlist = val['data'];
       this.totaldatatolist = val['count'];
       this.filter = filter
@@ -285,7 +291,9 @@ export class TransferorderPage {
       tono: tolist.to_no,
       locationcode: tolist.location_code,
       transferdate: tolist.transfer_date,
-      status: tolist.status
+      status: tolist.status,
+      rolecab: this.rolecab,
+      userid: this.userid
     });
   }
   doPostingTOList(tolist) {
@@ -342,7 +350,7 @@ export class TransferorderPage {
         this.halamantoreceiving++;
         this.api.get('table/transfer_order', {
           params: {
-            limit: 30, offset: offsetprepare, filter: "status='CLS1'"
+            limit: 30, offset: offsetprepare, filter: "status='CLS1' AND to_location=" + "'" + this.rolecab + "'"
           }
         })
           .subscribe(val => {
@@ -381,7 +389,7 @@ export class TransferorderPage {
     })
   }
   doRefreshTOReceiving(refresher) {
-    this.api.get("table/transfer_order", { params: { limit: 30, filter: "status='CLS1'" } }).subscribe(val => {
+    this.api.get("table/transfer_order", { params: { limit: 30, filter: "status='CLS1' AND to_location=" + "'" + this.rolecab + "'" } }).subscribe(val => {
       this.transferorderreceiving = val['data'];
       this.totaldatatoreceiving = val['count'];
       this.searchtoreceiving = this.transferorderreceiving;
@@ -395,7 +403,7 @@ export class TransferorderPage {
     else {
       this.sortTOReceiving = 'ASC'
     }
-    this.api.get("table/transfer_order", { params: { filter: "status='CLS1'", sort: filter + " " + this.sortTOReceiving + " " } }).subscribe(val => {
+    this.api.get("table/transfer_order", { params: { filter: "status='CLS1' AND to_location=" + "'" + this.rolecab + "'", sort: filter + " " + this.sortTOReceiving + " " } }).subscribe(val => {
       this.transferorderreceiving = val['data'];
       this.totaldatatoreceiving = val['count'];
       this.filter = filter
@@ -406,7 +414,9 @@ export class TransferorderPage {
       tono: tolist.to_no,
       locationcode: tolist.location_code,
       transferdate: tolist.transfer_date,
-      status: tolist.status
+      status: tolist.status,
+      rolecab: this.rolecab,
+      userid: this.userid
     });
   }
   doPostingTOReceiving(tolist) {
@@ -454,7 +464,7 @@ export class TransferorderPage {
     alert.present();
   }
   getUsers() {
-    this.api.get('table/user_role', { params: { filter: "id_area='INBOUND' AND id_group='STAFF'" } }).subscribe(val => {
+    this.api.get('table/user_role', { params: { filter: "((id_area='INBOUND' AND id_group='STAFF') OR (id_area='SHOWROOM' AND id_group='TL')) AND id_cab=" + "'" + this.rolecab + "'" } }).subscribe(val => {
       this.users = val['data'];
     });
   }
@@ -609,32 +619,56 @@ export class TransferorderPage {
                                 .subscribe(val => {
                                   this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Item", filter: "[No_]=" + "'" + data[i].item_no + "'" } }).subscribe(val => {
                                     let dataitem = val['data']
-                                    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Production BOM Line", filter: "[Production BOM No_]=" + "'" + dataitem[0]["Production BOM No_"] + "'" } }).subscribe(val => {
-                                      let datapart = val['data']
-                                      for (let j = 0; j < datapart.length; j++) {
-                                        this.api.post("table/picking_list_detail_part",
-                                          {
-                                            "id": data[i].to_no + data[i].line_no,
-                                            "receipt_no": data[i].to_no,
-                                            "item_no": data[i].item_no,
-                                            "bom_no": datapart[j]["Production BOM No_"],
-                                            "part_no": datapart[j].No_,
-                                            "line_no": datapart[j]["Line No_"],
-                                            "description": datapart[j].Description,
-                                            "qty": datapart[j].Quantity,
-                                            "location": '81003',
-                                            "sub_location": '',
-                                            "UOM": datapart[j]["Unit of Measure Code"],
-                                            "retail_so_no": '',
-                                            "status": 'OPEN',
-                                            "uuid": UUID.UUID()
-                                          },
-                                          { headers })
-                                          .subscribe(val => {
+                                    if (dataitem[0]["Production BOM No_"] == '') {
+                                      this.api.post("table/picking_list_detail_part",
+                                      {
+                                        "id": data[i].to_no + data[i].line_no,
+                                        "receipt_no": data[i].to_no,
+                                        "item_no": data[i].item_no,
+                                        "bom_no": dataitem[0]["Production BOM No_"],
+                                        "part_no": '',
+                                        "line_no": '10000',
+                                        "description": dataitem[0].Description,
+                                        "qty": '1',
+                                        "location": this.rolecab,
+                                        "sub_location": '',
+                                        "UOM": dataitem[0]["Base Unit of Measure"],
+                                        "retail_so_no": '',
+                                        "status": 'OPEN',
+                                        "uuid": UUID.UUID()
+                                      },
+                                      { headers })
+                                      .subscribe(val => {
+                                      });
+                                    }
+                                    else {
+                                      this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Production BOM Line", filter: "[Production BOM No_]=" + "'" + dataitem[0]["Production BOM No_"] + "'" } }).subscribe(val => {
+                                        let datapart = val['data']
+                                        for (let j = 0; j < datapart.length; j++) {
+                                          this.api.post("table/picking_list_detail_part",
+                                            {
+                                              "id": data[i].to_no + data[i].line_no,
+                                              "receipt_no": data[i].to_no,
+                                              "item_no": data[i].item_no,
+                                              "bom_no": datapart[j]["Production BOM No_"],
+                                              "part_no": datapart[j].No_,
+                                              "line_no": datapart[j]["Line No_"],
+                                              "description": datapart[j].Description,
+                                              "qty": datapart[j].Quantity,
+                                              "location": this.rolecab,
+                                              "sub_location": '',
+                                              "UOM": datapart[j]["Unit of Measure Code"],
+                                              "retail_so_no": '',
+                                              "status": 'OPEN',
+                                              "uuid": UUID.UUID()
+                                            },
+                                            { headers })
+                                            .subscribe(val => {
 
-                                          });
-                                      }
-                                    });
+                                            });
+                                        }
+                                      });
+                                    }
                                   })
                                 });
                             }

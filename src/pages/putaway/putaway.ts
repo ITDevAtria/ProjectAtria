@@ -10,6 +10,7 @@ import moment from 'moment';
 import { Storage } from '@ionic/storage';
 
 declare var window;
+declare var Honeywell;
 
 @IonicPage()
 @Component({
@@ -1196,145 +1197,143 @@ export class PutawayPage {
     alert.present();
   }
   doScanBarcodeItem() {
-    this.buttonText = "Loading..";
-    this.loading = true;
-    this.option = {
-      prompt: "Please scan your code"
-    }
-    // this.barcodeScanner.scan({ "orientation": 'landscape' }).then((barcodeData) => {
-    //   if (barcodeData.cancelled) {
-    //     this.loading = false;
-    //     return false;
-    //   }
-    window.plugins.honeywell.listen(data => {
-      var barcodeno = data;
-      var batchno = barcodeno.substring(0, 6);
-      var itemno = barcodeno.substring(6, 14);
-      this.api.get('table/receiving', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + ' AND ' + "item_no=" + "'" + itemno + "'" + ' AND ' + "status='CLSD'" } })
-        .subscribe(val => {
-          this.receivingputawaylist = val['data'];
-          if (this.receivingputawaylist.length) {
-            let alert = this.alertCtrl.create({
-              title: 'Qty',
-              inputs: [
-                {
-                  name: 'qty',
-                  placeholder: 'Qty'
-                }
-              ],
-              buttons: [
-                {
-                  text: 'Cancel',
-                  role: 'cancel',
-                  handler: data => {
-
+    var self = this
+    Honeywell.barcodeReaderPressSoftwareTrigger(function () {
+      Honeywell.onBarcodeEvent(function (data) {
+        var barcodeno = data.barcodeData;
+        var batchno = barcodeno.substring(0, 6);
+        var itemno = barcodeno.substring(6, 14);
+        self.api.get('table/receiving', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + ' AND ' + "item_no=" + "'" + itemno + "'" + ' AND ' + "status='CLSD'" } })
+          .subscribe(val => {
+            self.receivingputawaylist = val['data'];
+            if (self.receivingputawaylist.length) {
+              let alert = self.alertCtrl.create({
+                title: 'Qty',
+                inputs: [
+                  {
+                    name: 'qty',
+                    placeholder: 'Qty'
                   }
-                },
-                {
-                  text: 'OK',
-                  handler: data => {
-                    var batchno = barcodeno.substring(0, 6);
-                    var itemno = barcodeno.substring(6, 14);
-                    this.api.get('table/putawaylist_temp', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + " AND " + "item_no=" + "'" + itemno + "'" } })
-                      .subscribe(val => {
-                        this.getputawaylist = val['data'];
-                        if (this.getputawaylist.length) {
-                          const headers = new HttpHeaders()
-                            .set("Content-Type", "application/json");
-                          let date = moment().format('YYYY-MM-DD');
-                          this.api.put("table/putawaylist_temp",
-                            {
-                              "putawaylisttemp_no": this.getputawaylist[0].putawaylisttemp_no,
-                              "qty": parseInt(this.getputawaylist[0].qty) + parseInt(data.qty),
-                              "date": date,
-                              "pic": '12345'
-                            },
-                            { headers })
-                            .subscribe(val => {
-                              this.getPutawayTemp();
-                              this.myForm.get('barcodeno').setValue('')
-                              let alert = this.alertCtrl.create({
-                                title: 'Sukses ',
-                                subTitle: 'Update Item Sukses',
-                                buttons: ['OK']
-                              });
-                              alert.present();
-                            })
-                        }
-                        else {
-                          const headers = new HttpHeaders()
-                            .set("Content-Type", "application/json");
-                          this.getNextNoPUTemp().subscribe(val => {
-                            this.nextno = val['nextno'];
+                ],
+                buttons: [
+                  {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    handler: data => {
+
+                    }
+                  },
+                  {
+                    text: 'OK',
+                    handler: data => {
+                      var batchno = barcodeno.substring(0, 6);
+                      var itemno = barcodeno.substring(6, 14);
+                      self.api.get('table/putawaylist_temp', { params: { limit: 30, filter: "batch_no=" + "'" + batchno + "'" + " AND " + "item_no=" + "'" + itemno + "'" } })
+                        .subscribe(val => {
+                          self.getputawaylist = val['data'];
+                          if (self.getputawaylist.length) {
+                            const headers = new HttpHeaders()
+                              .set("Content-Type", "application/json");
                             let date = moment().format('YYYY-MM-DD');
-                            this.api.post("table/putawaylist_temp",
+                            self.api.put("table/putawaylist_temp",
                               {
-                                "putawaylisttemp_no": this.nextno,
-                                "receiving_no": this.receivingputawaylist[0].receiving_no,
-                                "doc_no": this.receivingputawaylist[0].doc_no,
-                                "order_no": this.receivingputawaylist[0].order_no,
-                                "batch_no": this.receivingputawaylist[0].batch_no,
-                                "item_no": this.receivingputawaylist[0].item_no,
-                                "posting_date": date,
-                                "location_code": this.receivingputawaylist[0].location_code,
-                                "location_position": this.receivingputawaylist[0].position,
-                                "division": this.receivingputawaylist[0].division,
-                                "qty": data.qty,
-                                "qty_receiving": this.receivingputawaylist[0].qty_receiving,
-                                "unit": this.receivingputawaylist[0].unit,
-                                "flag": '',
-                                "pic": '12345',
-                                "status": 'OPEN',
-                                "chronology_no": '',
-                                "uuid": UUID.UUID()
+                                "putawaylisttemp_no": self.getputawaylist[0].putawaylisttemp_no,
+                                "qty": parseInt(self.getputawaylist[0].qty) + parseInt(data.qty),
+                                "date": date,
+                                "pic": '12345'
                               },
                               { headers })
                               .subscribe(val => {
-                                this.getPutawayTemp();
-                                this.myForm.get('barcodeno').setValue('')
-                                let alert = this.alertCtrl.create({
+                                self.getPutawayTemp();
+                                self.myForm.get('barcodeno').setValue('')
+                                let alert = self.alertCtrl.create({
                                   title: 'Sukses ',
-                                  subTitle: 'Add Item Sukses',
+                                  subTitle: 'Update Item Sukses',
                                   buttons: ['OK']
                                 });
                                 alert.present();
                               })
-                          });
-                        }
-                      });
+                          }
+                          else {
+                            const headers = new HttpHeaders()
+                              .set("Content-Type", "application/json");
+                              self.getNextNoPUTemp().subscribe(val => {
+                                self.nextno = val['nextno'];
+                              let date = moment().format('YYYY-MM-DD');
+                              self.api.post("table/putawaylist_temp",
+                                {
+                                  "putawaylisttemp_no": self.nextno,
+                                  "receiving_no": self.receivingputawaylist[0].receiving_no,
+                                  "doc_no": self.receivingputawaylist[0].doc_no,
+                                  "order_no": self.receivingputawaylist[0].order_no,
+                                  "batch_no": self.receivingputawaylist[0].batch_no,
+                                  "item_no": self.receivingputawaylist[0].item_no,
+                                  "posting_date": date,
+                                  "location_code": self.receivingputawaylist[0].location_code,
+                                  "location_position": self.receivingputawaylist[0].position,
+                                  "division": self.receivingputawaylist[0].division,
+                                  "qty": data.qty,
+                                  "qty_receiving": self.receivingputawaylist[0].qty_receiving,
+                                  "unit": self.receivingputawaylist[0].unit,
+                                  "flag": '',
+                                  "pic": '12345',
+                                  "status": 'OPEN',
+                                  "chronology_no": '',
+                                  "uuid": UUID.UUID()
+                                },
+                                { headers })
+                                .subscribe(val => {
+                                  self.getPutawayTemp();
+                                  self.myForm.get('barcodeno').setValue('')
+                                  let alert = self.alertCtrl.create({
+                                    title: 'Sukses ',
+                                    subTitle: 'Add Item Sukses',
+                                    buttons: ['OK']
+                                  });
+                                  alert.present();
+                                })
+                            });
+                          }
+                        });
+                    }
                   }
-                }
-              ]
-            });
-            alert.present();
-          }
-          else {
-            let alert = this.alertCtrl.create({
-              title: 'Error ',
-              subTitle: 'Barcode Not Found',
-              buttons: ['OK']
-            });
-            alert.present();
-          }
+                ]
+              });
+              alert.present();
+            }
+            else {
+              let alert = self.alertCtrl.create({
+                title: 'Error ',
+                subTitle: 'Barcode Not Found',
+                buttons: ['OK']
+              });
+              alert.present();
+            }
 
-        });
-    });
+          });
+      }, function (reason) {
+        console.error(reason);
+      });
+    }, function (reason) {
+      console.error(reason);
+    }, {
+        press: true
+      });
   }
   doScanBarcodeRack() {
-    this.buttonText = "Loading..";
-    this.loading = true;
-    this.option = {
-      prompt: "Please scan your code"
-    }
-    // this.barcodeScanner.scan({ "orientation": 'landscape' }).then((barcodeData) => {
-    //   if (barcodeData.cancelled) {
-    //     this.loading = false;
-    //     return false;
-    //   }
-    window.plugins.honeywell.listen(data => {
-      var barcodeno = data.substring(0, 12);
-      this.myForm.get('rackno').setValue(barcodeno)
-    });
+    var self = this
+    Honeywell.barcodeReaderPressSoftwareTrigger(function () {
+      Honeywell.onBarcodeEvent(function (data) {
+        var barcodeno = data.barcodeData.substring(0, 12);
+        self.myForm.get('rackno').setValue(barcodeno)
+      }, function (reason) {
+        console.error(reason);
+      });
+    }, function (reason) {
+      console.error(reason);
+    }, {
+        press: true
+      });
   }
   getPutawayTemp() {
     this.api.get('table/putawaylist_temp', { params: { limit: 30, filter: "pic='12345'" } })

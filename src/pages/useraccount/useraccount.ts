@@ -90,4 +90,7 @@ export class UseraccountPage {
   doTask() {
     this.navCtrl.push('TaskPage');
   }
+  doUsers() {
+    this.navCtrl.push('UsersPage');
+  }
 }

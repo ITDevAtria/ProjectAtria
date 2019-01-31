@@ -22,42 +22,42 @@
           IN
         </ion-card-header>
         <ion-list class="side-list">
-          <button *ngIf="rolearea == 'INBOUND'" class="btn-side-menu" ion-item (click)="open('PurchasingorderPage')" menuClose>
+          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'HO'" class="btn-side-menu" ion-item (click)="open('PurchasingorderPage')" menuClose>
             <i class="fas fa-box imgfa"></i>
             Purchasing Order
           </button>
-          <button *ngIf="rolearea == 'INBOUND'" class="btn-side-menu" ion-item (click)="open('ReceivingPage')" menuClose>
+          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'HO'" class="btn-side-menu" ion-item (click)="open('ReceivingPage')" menuClose>
             <i class="fas fa-clipboard-list imgfa"></i>
             &nbsp;Receiving
           </button>
-          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM'" class="btn-side-menu" ion-item (click)="open('QcinPage')" menuClose>
+          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM' || rolearea == 'HO'" class="btn-side-menu" ion-item (click)="open('QcinPage')" menuClose>
             <i class="fas fa-calendar-check imgfa"></i>
             QC In
           </button>
-          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM'" class="btn-side-menu" ion-item (click)="open('PutawayPage')" menuClose>
+          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM' || rolearea == 'HO'" class="btn-side-menu" ion-item (click)="open('PutawayPage')" menuClose>
             <i class="fas fa-pallet imgfa"></i>
             Putaway
           </button>
         </ion-list>
       </ion-item>
-      <ion-item *ngIf="rolearea == 'INBOUND' || rolearea == 'OUTBOUND'" class="side-header-list">
+      <ion-item *ngIf="rolearea == 'INBOUND' || rolearea == 'OUTBOUND' || rolearea == 'HO'" class="side-header-list">
         <ion-card-header class="side-header-list">
           OUT
         </ion-card-header>
         <ion-list class="side-list">
-          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM'" class="btn-side-menu" ion-item (click)="open('MovementPage')" menuClose>
+          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM' || rolearea == 'HO'" class="btn-side-menu" ion-item (click)="open('MovementPage')" menuClose>
             <i class="fas fa-people-carry imgfa"></i>
             Movement
           </button>
-          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM'" class="btn-side-menu" ion-item (click)="open('TransferorderPage')" menuClose>
+          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM' || rolearea == 'HO'" class="btn-side-menu" ion-item (click)="open('TransferorderPage')" menuClose>
             <i class="fas fa-exchange-alt imgfa"></i>
             Transfer Order
           </button>
-          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM'" class="btn-side-menu" ion-item (click)="open('PickingPage')" menuClose>
+          <button *ngIf="rolearea == 'INBOUND' || rolearea == 'SHOWROOM' || rolearea == 'HO'" class="btn-side-menu" ion-item (click)="open('PickingPage')" menuClose>
             <i class="fas fa-dolly imgfa"></i>
             Picking
           </button>
-          <button *ngIf="rolearea == 'OUTBOUND' || rolearea == 'SHOWROOM'" class="btn-side-menu" ion-item (click)="open('QcoutPage')" menuClose>
+          <button *ngIf="rolearea == 'OUTBOUND' || rolearea == 'SHOWROOM' || rolearea == 'HO'" class="btn-side-menu" ion-item (click)="open('QcoutPage')" menuClose>
             <i class="fas fa-calendar-check imgfa"></i>
             QC Out
           </button>

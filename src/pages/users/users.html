@@ -1,0 +1,196 @@
+<ion-header id="header" class="header-menu">
+  <ion-navbar class="header-navbar" style="width:100%;">
+    <button ion-button menuToggle color="light">
+      <ion-icon name="menu" style="font-size:30px;"></ion-icon>
+    </button>
+    <div style="text-align:right;height:0px;">
+      <button *ngIf="addusersshow == false && updateusershow == false" ion-button clear style="color:#ffffff;background:transparent;font-size:30px;font-weight: bold;"
+        (click)="doOpenAddUsers()">
+        <ion-icon name="md-add-circle"></ion-icon>
+      </button>
+      <button *ngIf="addusersshow == true" ion-button clear style="color:#ffffff;background:transparent;font-size:30px;font-weight: bold;"
+        (click)="doOffAddUsers()">
+        <ion-icon name="md-close"></ion-icon>
+      </button>
+      <button *ngIf="updateusershow == true" ion-button clear style="color:#ffffff;background:transparent;font-size:30px;font-weight: bold;"
+        (click)="doOffUpdateUsers()">
+        <ion-icon name="md-close"></ion-icon>
+      </button>
+    </div>
+    <ion-title class="side-title">
+      <div class="logo-atria">
+        <img src="assets/imgs/logoatriawhite.png" height="45" />
+      </div>
+    </ion-title>
+  </ion-navbar>
+</ion-header>
+
+<ion-content padding>
+  <ion-grid>
+    <ion-row class="row-content" padding style="font-weight: bold;font-size: 20px;">
+      <ion-col padding class="col-content" col-2>ID User</ion-col>
+      <ion-col padding class="col-content" col-2>Name User</ion-col>
+      <ion-col padding class="col-content" col-2>Area</ion-col>
+      <ion-col padding class="col-content" col-1>Group</ion-col>
+      <ion-col padding class="col-content" col-2>Role</ion-col>
+      <ion-col padding class="col-content" col-1>Location</ion-col>
+      <ion-col padding class="col-content" col-2>Tools</ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col col-2 style="padding-top:15px;">
+        <ion-input style="border:1px solid;border-color:#dedede;" (keydown)="getSearchID($event.target.value)" (keyup)="getSearchID($event.target.value)"></ion-input>
+      </ion-col>
+      <ion-col col-2 style="padding-top:15px;">
+        <ion-input style="border:1px solid;border-color:#dedede;" (keydown)="getSearchName($event.target.value)" (keyup)="getSearchName($event.target.value)"></ion-input>
+      </ion-col>
+      <ion-col col-2 style="padding-top:15px;">
+        <ion-input style="border:1px solid;border-color:#dedede;" (keydown)="getSearchArea($event.target.value)" (keyup)="getSearchArea($event.target.value)"></ion-input>
+      </ion-col>
+      <ion-col col-1 style="padding-top:15px;">
+        <ion-input style="border:1px solid;border-color:#dedede;" (keydown)="getSearchGroup($event.target.value)" (keyup)="getSearchGroup($event.target.value)"></ion-input>
+      </ion-col>
+      <ion-col col-2 style="padding-top:15px;">
+        <ion-input style="border:1px solid;border-color:#dedede;" (keydown)="getSearchRole($event.target.value)" (keyup)="getSearchRole($event.target.value)"></ion-input>
+      </ion-col>
+      <ion-col col-1 style="padding-top:15px;">
+        <ion-input style="border:1px solid;border-color:#dedede;" (keydown)="getSearchCab($event.target.value)" (keyup)="getSearchCab($event.target.value)"></ion-input>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngFor="let user of users" class="row-content-list" padding style="font-size: 18px;">
+      <ion-col padding class="col-content" col-2>{{user.id_user}}</ion-col>
+      <ion-col padding class="col-content" col-2>{{user.name}}</ion-col>
+      <ion-col padding class="col-content" col-2>{{user.id_area}}</ion-col>
+      <ion-col padding class="col-content" col-1>{{user.id_group}}</ion-col>
+      <ion-col padding class="col-content" col-2>{{user.id_role}}</ion-col>
+      <ion-col padding class="col-content" col-1>{{user.id_cab}}</ion-col>
+      <ion-col padding class="col-content" col-1>
+        <button ion-button clear (click)="doOpenUpdateUsers(user)">
+          <ion-icon name="md-sync" style="font-size:30px;"></ion-icon>
+        </button>
+      </ion-col>
+      <ion-col padding class="col-content" col-1>
+        <button ion-button clear (click)="doDeleteUsers(user)">
+          <ion-icon name="md-trash" style="font-size:30px;"></ion-icon>
+        </button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+<div *ngIf="addusersshow == true" class="modal-users" style="margin-top:70px;">
+  <div class="modal-content-users">
+    <form [formGroup]="myForm">
+      <ion-item padding no-lines>
+        <ion-label stacked style="font-size: 20px;">ID User</ion-label>
+        <ion-input formControlName="iduser" style="font-size: 20px;padding-top:10px;"></ion-input>
+      </ion-item>
+      <ion-item padding no-lines>
+        <ion-label stacked style="font-size: 20px;">Name</ion-label>
+        <ion-input formControlName="name" style="font-size: 20px;padding-top:10px;"></ion-input>
+      </ion-item>
+      <ion-item padding>
+        <ion-label stacked style="font-size: 20px;">Area</ion-label>
+        <ion-select style="font-size: 20px;padding-top:10px;" formControlName="area">
+          <ion-option style="font-size: 20px;padding-top:10px;" value="HO">HO</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="INBOUND">INBOUND</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="OUTBOUND">OUTBOUND</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="SHOWROOM">SHOWROOM</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item padding>
+        <ion-label stacked style="font-size: 20px;">Group</ion-label>
+        <ion-select style="font-size: 20px;padding-top:10px;" formControlName="group">
+          <ion-option style="font-size: 20px;padding-top:10px;" value="ADMIN">ADMIN</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="TL">TL</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="STAFF">STAFF</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item padding>
+        <ion-label stacked style="font-size: 20px;">Role</ion-label>
+        <ion-select style="font-size: 20px;padding-top:10px;" formControlName="role">
+          <ion-option style="font-size: 20px;padding-top:10px;" value="ADMIN">ADMIN</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="DRIVER">DRIVER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="DSM">DEPUTY STORE MANAGER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="INSTALLER">INSTALLER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="LOADER">LOADER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="RECEIVING">RECEIVING</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="REPAIR">REPAIR</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="SC">SALES CONSULTANT</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="SM">SHOWROOM MANAGER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="TL">TEAM LEADER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="QC">QUALITY CONTROL</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="WAREHOUSEMAN">WAREHOUSE MAN</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item padding>
+        <ion-label stacked style="font-size: 20px;">Location</ion-label>
+        <ion-select style="font-size: 20px;padding-top:10px;" formControlName="location">
+          <ion-option style="font-size: 20px;padding-top:10px;" *ngFor="let loc of location" value="{{loc.Code}}">{{loc.Code}} {{loc.Name}}</ion-option>
+        </ion-select>
+      </ion-item>
+    </form>
+  </div>
+</div>
+<ion-footer *ngIf="addusersshow == true" style="background:#217481;">
+  <button ion-button full color="greenlake" [disabled]="!myForm.valid" (click)="doInsertUsers()">
+    Insert
+  </button>
+</ion-footer>
+<div *ngIf="updateusershow == true" class="modal-users" style="margin-top:70px;">
+  <div class="modal-content-users">
+    <form [formGroup]="myForm">
+      <ion-item padding no-lines>
+        <ion-label stacked style="font-size: 20px;">ID User</ion-label>
+        <ion-input formControlName="iduser" disabled style="font-size: 20px;padding-top:10px;"></ion-input>
+      </ion-item>
+      <ion-item padding no-lines>
+        <ion-label stacked style="font-size: 20px;">Name</ion-label>
+        <ion-input formControlName="name" style="font-size: 20px;padding-top:10px;"></ion-input>
+      </ion-item>
+      <ion-item padding>
+        <ion-label stacked style="font-size: 20px;">Area</ion-label>
+        <ion-select style="font-size: 20px;padding-top:10px;" formControlName="area">
+          <ion-option style="font-size: 20px;padding-top:10px;" value="HO">HO</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="INBOUND">INBOUND</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="OUTBOUND">OUTBOUND</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="SHOWROOM">SHOWROOM</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item padding>
+        <ion-label stacked style="font-size: 20px;">Group</ion-label>
+        <ion-select style="font-size: 20px;padding-top:10px;" formControlName="group">
+          <ion-option style="font-size: 20px;padding-top:10px;" value="ADMIN">ADMIN</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="TL">TL</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="STAFF">STAFF</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item padding>
+        <ion-label stacked style="font-size: 20px;">Role</ion-label>
+        <ion-select style="font-size: 20px;padding-top:10px;" formControlName="role">
+          <ion-option style="font-size: 20px;padding-top:10px;" value="ADMIN">ADMIN</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="DRIVER">DRIVER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="DSM">DEPUTY STORE MANAGER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="INSTALLER">INSTALLER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="LOADER">LOADER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="RECEIVING">RECEIVING</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="REPAIR">REPAIR</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="SC">SALES CONSULTANT</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="SM">SHOWROOM MANAGER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="TL">TEAM LEADER</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="QC">QUALITY CONTROL</ion-option>
+          <ion-option style="font-size: 20px;padding-top:10px;" value="WAREHOUSEMAN">WAREHOUSE MAN</ion-option>
+        </ion-select>
+      </ion-item>
+      <ion-item padding>
+        <ion-label stacked style="font-size: 20px;">Location</ion-label>
+        <ion-select style="font-size: 20px;padding-top:10px;" formControlName="location">
+          <ion-option style="font-size: 20px;padding-top:10px;" *ngFor="let loc of location" value="{{loc.Code}}">{{loc.Code}} {{loc.Name}}</ion-option>
+        </ion-select>
+      </ion-item>
+    </form>
+  </div>
+</div>
+<ion-footer *ngIf="updateusershow == true" style="background:#217481;">
+  <button ion-button full color="greenlake" [disabled]="!myForm.valid" (click)="doUpdateUsers()">
+    Update
+  </button>
+</ion-footer>

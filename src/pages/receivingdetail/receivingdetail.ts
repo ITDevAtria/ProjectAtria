@@ -10,6 +10,7 @@ import moment from 'moment';
 import { Storage } from '@ionic/storage';
 
 declare var window;
+declare var Honeywell;
 
 @IonicPage()
 @Component({
@@ -290,122 +291,119 @@ export class ReceivingdetailPage {
     return this.api.get('nextno/qc_in/qc_no')
   }
   doScanBarcode() {
-    this.buttonText = "Loading..";
-    this.loading = true;
-    this.option = {
-      prompt: "Please scan your code"
-    }
-    // this.barcodeScanner.scan({ "orientation": 'landscape' }).then((barcodeData) => {
-    //   if (barcodeData.cancelled) {
-    //     this.loading = false;
-    //     return false;
-    //   }
-    window.plugins.honeywell.listen(data => {
-      var barcodeno = data;
-      var batchno = barcodeno.substring(0, 6);
-      var itemno = barcodeno.substring(6, 14);
-      return new Promise(resolve => {
-        this.api.get("table/receiving", {
-          params: {
-            filter:
-              'order_no=' + "'" + this.orderno + "'" +
-              " " + 'AND' + " " +
-              "batch_no=" + "'" + batchno + "'" +
-              " " + 'AND' + " " +
-              "item_no=" + "'" + itemno + "'"
-          }
-        }).subscribe((val) => {
-          let data = val['data'];
-          for (let i = 0; i < data.length; i++) {
-            this.itemdata.push(data[i]);
-          }
-          if (this.itemdata[0].qty_receiving < this.itemdata[0].qty) {
-            let alert = this.alertCtrl.create({
-              subTitle: data,
-              inputs: [
-                {
-                  name: 'qty',
-                  placeholder: 'Qty',
-                  value: '1'
-                }
-              ],
-              buttons: [
-                {
-                  text: 'Cancel',
-                  role: 'cancel',
-                  handler: data => {
-
+    var self = this
+    Honeywell.barcodeReaderPressSoftwareTrigger(function () {
+      Honeywell.onBarcodeEvent(function (data) {
+        var barcodeno = data.barcodeData;
+        var batchno = barcodeno.substring(0, 6);
+        var itemno = barcodeno.substring(6, 14);
+        return new Promise(resolve => {
+          self.api.get("table/receiving", {
+            params: {
+              filter:
+                'order_no=' + "'" + self.orderno + "'" +
+                " " + 'AND' + " " +
+                "batch_no=" + "'" + batchno + "'" +
+                " " + 'AND' + " " +
+                "item_no=" + "'" + itemno + "'"
+            }
+          }).subscribe((val) => {
+            let data = val['data'];
+            for (let i = 0; i < data.length; i++) {
+              self.itemdata.push(data[i]);
+            }
+            if (self.itemdata[0].qty_receiving < self.itemdata[0].qty) {
+              let alert = self.alertCtrl.create({
+                subTitle: data,
+                inputs: [
+                  {
+                    name: 'qty',
+                    placeholder: 'Qty',
+                    value: '1'
                   }
-                },
-                {
-                  text: 'OK',
-                  handler: data => {
-                    if ((parseInt(this.itemdata[0].qty_receiving) + parseInt(data.qty)) > this.itemdata[0].qty) {
-                      let alert = this.alertCtrl.create({
-                        title: 'Error',
-                        message: 'Total QTY Receiving greater than QTY',
-                        buttons: ['OK']
-                      });
-                      alert.present();
+                ],
+                buttons: [
+                  {
+                    text: 'Cancel',
+                    role: 'cancel',
+                    handler: data => {
+
                     }
-                    else {
-                      const headers = new HttpHeaders()
-                        .set("Content-Type", "application/json");
-                      this.api.put("table/receiving",
-                        {
-                          "receiving_no": this.itemdata[0].receiving_no,
-                          "qty_receiving": parseInt(this.itemdata[0].qty_receiving) + parseInt(data.qty)
-                        },
-                        { headers })
-                        .subscribe(val => {
-                          if ((parseInt(this.itemdata[0].qty_receiving) + parseInt(data.qty)) == this.itemdata[0].qty) {
-                            const headers = new HttpHeaders()
-                              .set("Content-Type", "application/json");
-                            this.api.put("table/receiving",
-                              {
-                                "receiving_no": this.itemdata[0].receiving_no,
-                                "status": 'CHECKED'
-                              },
-                              { headers })
-                              .subscribe(val => {
-                                this.getRCV();
-                                this.getRCVChecked();
-                              });
-                          }
-                          this.itemdata = [];
-                          this.getRCV();
-                          alert.present();
+                  },
+                  {
+                    text: 'OK',
+                    handler: data => {
+                      if ((parseInt(self.itemdata[0].qty_receiving) + parseInt(data.qty)) > self.itemdata[0].qty) {
+                        let alert = self.alertCtrl.create({
+                          title: 'Error',
+                          message: 'Total QTY Receiving greater than QTY',
+                          buttons: ['OK']
                         });
+                        alert.present();
+                      }
+                      else {
+                        const headers = new HttpHeaders()
+                          .set("Content-Type", "application/json");
+                          self.api.put("table/receiving",
+                          {
+                            "receiving_no": self.itemdata[0].receiving_no,
+                            "qty_receiving": parseInt(self.itemdata[0].qty_receiving) + parseInt(data.qty)
+                          },
+                          { headers })
+                          .subscribe(val => {
+                            if ((parseInt(self.itemdata[0].qty_receiving) + parseInt(data.qty)) == self.itemdata[0].qty) {
+                              const headers = new HttpHeaders()
+                                .set("Content-Type", "application/json");
+                                self.api.put("table/receiving",
+                                {
+                                  "receiving_no": self.itemdata[0].receiving_no,
+                                  "status": 'CHECKED'
+                                },
+                                { headers })
+                                .subscribe(val => {
+                                  self.getRCV();
+                                  self.getRCVChecked();
+                                });
+                            }
+                            self.itemdata = [];
+                            self.getRCV();
+                            alert.present();
+                          });
+                      }
                     }
                   }
-                }
-              ]
-            });
-            alert.present();
-            resolve();
-          }
-          else {
-            this.itemdata = [];
-            let alert = this.alertCtrl.create({
-              title: 'Error',
-              message: 'Data Not Found',
-              buttons: ['OK']
-            });
-            alert.present();
-          }
-        },
-          response => {
-            let alert = this.alertCtrl.create({
-              title: 'Error',
-              message: 'Data Not Found' + response,
-              buttons: ['OK']
-            });
-            alert.present();
-          })
+                ]
+              });
+              alert.present();
+              resolve();
+            }
+            else {
+              self.itemdata = [];
+              let alert = self.alertCtrl.create({
+                title: 'Error',
+                message: 'Data Not Found',
+                buttons: ['OK']
+              });
+              alert.present();
+            }
+          },
+            response => {
+              let alert = self.alertCtrl.create({
+                title: 'Error',
+                message: 'Data Not Found' + response,
+                buttons: ['OK']
+              });
+              alert.present();
+            })
+        });
+      }, function (reason) {
+        console.error(reason);
       });
-    }, (err) => {
-
-    });
+    }, function (reason) {
+      console.error(reason);
+    }, {
+        press: true
+      });
   }
   doReceiving(detailrcv) {
     let alert = this.alertCtrl.create({

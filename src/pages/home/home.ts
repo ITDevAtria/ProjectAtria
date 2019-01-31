@@ -55,10 +55,11 @@ export class HomePage {
             this.rolearea = this.role[0].id_area
             this.rolegroup = this.role[0].id_group
             this.rolecab = this.role[0].id_cab
+            console.log(this.rolearea)
           }
         })
     });
-  }  
+  }
   ngAfterViewInit() {
     this.loader.dismiss();
   }
@@ -74,32 +75,63 @@ export class HomePage {
     });
   }
   doPreparationPO() {
-    this.navCtrl.push('PurchasingorderPage');
+    this.navCtrl.push('PurchasingorderPage', {
+      rolecab: this.rolecab,
+      userid: this.userid
+    });
   }
   doReceiving() {
     this.navCtrl.push('ReceivingPage', {
-      rolecab: this.rolecab
+      rolecab: this.rolecab,
+      userid: this.userid
     });
   }
   doQcIn() {
-    this.navCtrl.push('QcinPage');
+    this.navCtrl.push('QcinPage', {
+      rolecab: this.rolecab,
+      userid: this.userid
+    });
   }
   doQcOut() {
-    this.navCtrl.push('QcoutPage');
+    this.navCtrl.push('QcoutPage', {
+      rolecab: this.rolecab,
+      userid: this.userid
+    });
   }
   doPutaway() {
-    this.navCtrl.push('PutawayPage');
+    this.navCtrl.push('PutawayPage', {
+      rolecab: this.rolecab,
+      userid: this.userid
+    });
   }
   doMovement() {
-    this.navCtrl.push('MovementPage');
+    this.navCtrl.push('MovementPage', {
+      rolecab: this.rolecab,
+      userid: this.userid
+    });
   }
   doPicking() {
-    this.navCtrl.push('PickingPage');
+    this.navCtrl.push('PickingPage', {
+      rolecab: this.rolecab,
+      userid: this.userid
+    });
   }
   doProfile() {
-    this.navCtrl.push('UseraccountPage');
+    this.navCtrl.push('UseraccountPage', {
+      rolecab: this.rolecab,
+      userid: this.userid
+    });
   }
   doTransferOrder() {
-    this.navCtrl.push('TransferorderPage');
+    this.navCtrl.push('TransferorderPage', {
+      rolecab: this.rolecab,
+      userid: this.userid
+    });
+  }
+  doCekStock() {
+    this.navCtrl.push('CekstockPage', {
+      rolecab: this.rolecab,
+      userid: this.userid
+    });
   }
 }

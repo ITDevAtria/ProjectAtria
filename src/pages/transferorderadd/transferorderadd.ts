@@ -19,6 +19,8 @@ export class TransferorderaddPage {
   private token: any;
   public to = [];
   public td = [];
+  public rolecab: any;
+  public userid: any;
 
   // error_messages = {
   //   'docno': [
@@ -50,6 +52,8 @@ export class TransferorderaddPage {
     public alertCtrl: AlertController,
     public storage: Storage
   ) {
+    this.rolecab = this.navParams.get('rolecab')
+    this.userid = this.navParams.get('userid')
     this.myForm = fb.group({
       from: ['', Validators.compose([Validators.required])],
       to: ['', Validators.compose([Validators.required])],
@@ -58,6 +62,8 @@ export class TransferorderaddPage {
       description: ['', Validators.compose([Validators.required])],
     })
     this.doGetLocation()
+    this.myForm.get('to').setValue(this.rolecab)
+    this.doGetOrderNo()
   }
   doGetLocation() {
     this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Location", sort: "[Code]" + " ASC " } })
@@ -66,7 +72,7 @@ export class TransferorderaddPage {
       });
   }
   doGetOrderNo() {
-    this.api.get('table/transfer_order_request', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.from + "'" } }).subscribe(val => {
+    this.api.get('table/transfer_order_request', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.to + "'" } }).subscribe(val => {
       this.to = val['data'];
       if (this.to.length != 0) {
         this.myForm.get('orderno').setValue(this.to[0].code + (this.to[0].last_no_used + 1))
@@ -98,20 +104,21 @@ export class TransferorderaddPage {
         "transfer_date": this.myForm.value.transferdate,
         "description": this.myForm.value.description,
         "status": 'OPEN',
+        "pic": this.userid,
         "datetime": datetime,
         "uuid": this.uuid
       },
       { headers })
       .subscribe(
         (val) => {
-          this.api.get('table/transfer_order_request', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.from + "'" } }).subscribe(val => {
+          this.api.get('table/transfer_order_request', { params: { limit: 1, filter: 'location_code=' + "'" + this.myForm.value.to + "'" } }).subscribe(val => {
             this.to = val['data'];
             const headers = new HttpHeaders()
               .set("Content-Type", "application/json");
             let date = moment().format('YYYY-MM-DD')
             this.api.put("table/transfer_order_request",
               {
-                "location_code": this.myForm.value.locationcode,
+                "location_code": this.myForm.value.to,
                 "last_date_used": date,
                 "last_no_used": this.to[0].last_no_used + 1
               },
@@ -135,6 +142,9 @@ export class TransferorderaddPage {
         () => {
 
         });
+  }
+  closeModal() {
+    this.viewCtrl.dismiss();
   }
 
 }

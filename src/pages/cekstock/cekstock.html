@@ -1,0 +1,30 @@
+<ion-header class="header-menu">
+    <ion-navbar class="header-navbar" style="width:100%;">
+      <button *ngIf="!toggled" ion-button menuToggle color="light">
+        <ion-icon name="menu" style="font-size:30px;"></ion-icon>
+      </button>
+      <ion-title class="side-title">
+        <div *ngIf="!toggled" class="logo-atria">
+          <img src="assets/imgs/logoatriawhite.png" height="45" />
+        </div>
+      </ion-title>
+    </ion-navbar>
+  </ion-header>
+
+<ion-content padding>
+    <ion-searchbar placeholder="Search Items" (ionInput)="getSearch($event)"></ion-searchbar>
+    <ion-grid padding>
+      <ion-row class="row-content">
+        <ion-col padding class="col-content">Item No</ion-col>
+        <ion-col padding class="col-content">Batch No</ion-col>
+        <ion-col padding class="col-content">Sub Location</ion-col>
+        <ion-col padding class="col-content">Qty</ion-col>
+      </ion-row>
+      <ion-row *ngFor="let stok of stock" class="row-content-list">
+        <ion-col padding class="col-content">{{stok.item_no}}</ion-col>
+        <ion-col padding class="col-content">{{stok.batch_no}}</ion-col>
+        <ion-col padding class="col-content">{{stok.sub_location}}</ion-col>
+        <ion-col padding class="col-content">{{stok.qty}}</ion-col>
+      </ion-row>
+    </ion-grid>
+</ion-content>

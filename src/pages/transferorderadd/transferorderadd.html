@@ -21,19 +21,19 @@
     </ion-item> -->
     <ion-item class="item-input" style="font-size:15px;">
       <ion-label floating>From</ion-label>
-      <ion-select formControlName="from" (ionChange)="doGetOrderNo()">
+      <ion-select formControlName="from">
         <ion-option *ngFor="let loc of location" value="{{loc.Code}}">{{loc.Code}} {{loc.Name}}</ion-option>
       </ion-select>
     </ion-item>
     <ion-item class="item-input" style="font-size:15px;">
       <ion-label floating>TO</ion-label>
-      <ion-select formControlName="to">
+      <ion-select formControlName="to" disabled>
         <ion-option *ngFor="let loc of location" value="{{loc.Code}}">{{loc.Code}} {{loc.Name}}</ion-option>
       </ion-select>
     </ion-item>
     <ion-item class="item-input" no-lines style="font-size:15px;">
       <ion-label floating>Order No</ion-label>
-      <ion-input formControlName="orderno" type="text"></ion-input>
+      <ion-input formControlName="orderno" disabled type="text"></ion-input>
     </ion-item>
     <ion-item class="item-input" style="font-size:15px;">
       <ion-label floating>Transfer Date</ion-label>
@@ -41,7 +41,7 @@
     </ion-item>
     <ion-item class="item-input" style="font-size:15px">
       <ion-label floating>Description</ion-label>
-      <ion-textarea formControlName="description" type="textarea"></ion-textarea>
+      <ion-textarea formControlName="description" disabled type="textarea"></ion-textarea>
     </ion-item>
     <!-- <testing [messages]="error_messages.locationcode" [control]="myForm.get('locationcode')"></testing> -->
   </form>

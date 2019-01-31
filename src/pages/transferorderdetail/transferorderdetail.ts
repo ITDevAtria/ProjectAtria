@@ -38,6 +38,8 @@ export class TransferorderdetailPage {
   setdiv = '';
   divdesc = '';
   receivingno = '';
+  public rolecab: any;
+  public userid: any;
 
   constructor(
     public navCtrl: NavController,
@@ -55,6 +57,8 @@ export class TransferorderdetailPage {
       pic: ['', Validators.compose([Validators.required])],
     })
     this.detailto = 'detailtoitem'
+    this.userid = this.navParams.get('userid')
+    this.rolecab = this.navParams.get('rolecab')
     this.tono = this.navParams.get('tono')
     this.from = this.navParams.get('from')
     this.to = this.navParams.get('to')
@@ -68,7 +72,9 @@ export class TransferorderdetailPage {
       tono: this.tono,
       from: this.from,
       to: this.to,
-      transferdate: this.transferdate
+      transferdate: this.transferdate,
+      rolecab: this.rolecab,
+      userid: this.userid
     });
   }
   getTODetail() {

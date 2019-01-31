@@ -14,6 +14,7 @@ import moment from 'moment';
 })
 export class TransferorderdetailaddPage {
   myForm: FormGroup;
+  myFormModalItems: FormGroup;
   private items = [];
   private nextno = '';
   private nextnorcv = '';
@@ -29,6 +30,10 @@ export class TransferorderdetailaddPage {
   totalitem: any;
   totalcount: any;
   private token: any;
+  public itemsshow: boolean = false;
+  halaman = 0;
+  public userid: any;
+  public rolecab: any;
 
   constructor(
     public navCtrl: NavController,
@@ -45,10 +50,16 @@ export class TransferorderdetailaddPage {
       to: ['', Validators.compose([Validators.required])],
       transferdate: ['', Validators.compose([Validators.required])],
       itemno: ['', Validators.compose([Validators.required])],
+      description: ['', Validators.compose([Validators.required])],
       qty: ['', Validators.compose([Validators.required])],
       unit: ['', Validators.compose([Validators.required])],
     })
+    this.myFormModalItems = fb.group({
+      items: ['', Validators.compose([Validators.required])],
+    })
     this.getItems();
+    this.userid = navParams.get('userid')
+    this.rolecab = navParams.get('rolecab')
     this.tono = navParams.get('tono');
     this.from = navParams.get('from');
     this.to = navParams.get('to');
@@ -70,7 +81,7 @@ export class TransferorderdetailaddPage {
     });
   }
   getItems() {
-    this.api.get('table/items', { params: { limit: 1000 } }).subscribe(val => {
+    this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Item"} }).subscribe(val => {
       this.items = val['data'];
     });
   }
@@ -93,7 +104,7 @@ export class TransferorderdetailaddPage {
       let uuid = UUID.UUID();
       this.uuid = uuid;
       console.log(this.tono)
-      this.api.get("table/transfer_order_detail", { params: { filter: "to_no=" + "'" + this.tono + "'", sort: 'line_no DESC' } })
+      this.api.get("table/transfer_order_detail", { params: { filter: "to_no=" + "'" + this.tono + "' AND location_current_code=" + "'" + this.rolecab + "'", sort: 'line_no DESC' } })
         .subscribe(val => {
           let data = val['data']
           if (data.length != 0) {
@@ -106,7 +117,7 @@ export class TransferorderdetailaddPage {
                 "to_detail_no": this.nextno,
                 "to_no": this.tono,
                 "item_no": this.myForm.value.itemno,
-                "description": this.itemdesc,
+                "description": this.myForm.value.description,
                 "line_no": lineno,
                 "division": this.itemdiv,
                 "date": moment().format('YYYY-MM-DD'),
@@ -117,6 +128,7 @@ export class TransferorderdetailaddPage {
                 "qty_receiving": 0,
                 "unit": this.myForm.value.unit,
                 "status": 'OPEN',
+                "pic": this.userid,
                 "uuid": this.uuid
               },
               { headers })
@@ -147,7 +159,7 @@ export class TransferorderdetailaddPage {
                 "to_detail_no": this.nextno,
                 "to_no": this.tono,
                 "item_no": this.myForm.value.itemno,
-                "description": this.itemdesc,
+                "description": this.myForm.value.description,
                 "line_no": '10000',
                 "division": this.itemdiv,
                 "date": moment().format('YYYY-MM-DD'),
@@ -158,6 +170,7 @@ export class TransferorderdetailaddPage {
                 "qty_receiving": 0,
                 "unit": this.myForm.value.unit,
                 "status": 'OPEN',
+                "pic": this.userid,
                 "uuid": this.uuid
               },
               { headers })
@@ -184,5 +197,39 @@ export class TransferorderdetailaddPage {
   }
   getNextNo() {
     return this.api.get('nextno/transfer_order_detail/to_detail_no')
+  }
+  doOffItems() {
+    this.itemsshow = false;
+    document.getElementById('content').style.display = 'block'
+    document.getElementById('footer').style.display = 'block'
+    this.myFormModalItems.reset()
+  }
+  doOpenItems() {
+    this.itemsshow = true;
+    document.getElementById('content').style.display = 'none'
+    document.getElementById('footer').style.display = 'none'
+  }
+  getSearch(ev: any) {
+    // set val to the value of the searchbar
+    let value = ev.target.value;
+    // if the value is an empty string don't filter the items
+    if (value && value.trim() != '') {
+      this.api.get("tablenav", { params: { limit: 30, table: "CSB_LIVE$Item", filter: "No_ LIKE '%" + value + "%'", sort: "No_" + " ASC " } })
+        .subscribe(val => {
+          let data = val['data']
+          this.items = data.filter(item => {
+            return item.No_.toLowerCase().indexOf(value.toLowerCase()) > -1;
+          })
+        });
+    }
+    else {
+      this.getItems()
+    }
+  }
+  doSelectItems(item) {
+    this.myForm.get('itemno').setValue(item.No_)
+    this.myForm.get('description').setValue(item.Description)
+    this.myForm.get('unit').setValue(item["Base Unit of Measure"])
+    this.doOffItems()
   }
 }
